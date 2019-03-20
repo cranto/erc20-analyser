@@ -1,7 +1,7 @@
 {
   "name": "erc20-analyser",
   "version": "0.0.1",
-  "description": "Module to analyse ERC-20 tokens for the address",
+  "description": "Module to analyse ERC-20 Token balance of address",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
