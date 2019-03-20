@@ -1,10 +1,23 @@
-.idea/
-.vscode/
-node_modules/
-.cache
+# Mac
 .DS_Store
-npm-debug.log
+*.tmp.txt
 
+# Project
+node_modules/
+npm-debug.log
+.cache
+
+# Build
+dist/
+
+# Visual Studio Code
+.settings/
+.vscode/
+
+# IntelliJ
+.idea/
+
+# Other
 *.log
 *.gz
 *.dat
