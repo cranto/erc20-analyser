@@ -1,3 +1,14 @@
+/**
+ * Reg Exp for check format ISO 8601
+ * 
+ * W3C Specification: https://www.w3.org/TR/NOTE-datetime
+ * ISO-8601 Specification by 2004: http://dotat.at/tmp/ISO_8601-2004_E.pdf
+ * Stackoverflow discuss: https://stackoverflow.com/questions/3143070/javascript-regex-iso-datetime
+ * RND Reg Exp ISO-8601: https://www.regextester.com/97766
+ * 
+ * TODO: Create test for regular expression
+ */
+let regExpISO8601 = new RegExp(`^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[01]|0[1-9]|[12][0-9])T(2[0-3]|[01][0-9]):([0-5][0-9]):([0-5][0-9])(.[0-9]+)?(Z)?$`)
 
 /**
  * 
@@ -13,9 +24,14 @@
  * Date objects use a Unix Time Stamp, an integer value that is the number of milliseconds since 1 January 1970 00:00:00 UTC
  * To finish: UNIX timestamp (1529695777000)
  */
+
 function ToTimestamp(value: string) {
 
-    return Date.parse(value)
+    if (regExpISO8601.test(value)) {
+        return Date.parse(value)
+    }
+
+    return new Error('Transformation from ISO-8601 to UNIX isn\'t correct.')
 }
 
 export default ToTimestamp;
