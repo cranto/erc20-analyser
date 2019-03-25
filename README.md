@@ -2,8 +2,8 @@
 
 # What is this?
 
-This is a library for calculate profit or loss of ETH-address.
-This is non-profit & opensource project for developers but if you want use this project for commercial goals then you need to buy commercial API (third party services).
+This is a library for calculating the profit or loss of ETH-address.
+This is a non-profit & opensource project for developers. If you want to use this project for commercial goals, you need to buy commercial API (for third party services).
 
 # How do I use it?
 
