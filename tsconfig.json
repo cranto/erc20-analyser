@@ -4,13 +4,14 @@
     "target": "es6",
     "module": "commonjs",
     "removeComments": false,
-    "sourceMap": false,
+    "sourceMap": true,
     "outDir": "./dist"
   },
   "include": [
     "src/**/*"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "**/node_modules/*"
   ]
 }
