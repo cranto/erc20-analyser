@@ -1,3 +1,5 @@
+import ThrowError from './throw-error'
+
 /**
  * Reg Exp for check format ISO 8601
  * 
@@ -12,7 +14,7 @@ let regExpISO8601 = new RegExp(/^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3
 
 /**
  * 
- * @param {*} value
+ * @param {string} value
  * function to convert human readable time to UNIX timestamp
  * Using function Date.parse() but if get parameter with date from another API to change this function
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/parse#Using_Date.parse()
@@ -25,13 +27,13 @@ let regExpISO8601 = new RegExp(/^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3
  * To finish: UNIX timestamp (1529695777000)
  */
 
-function ToTimestamp(value: string) {
+function ToTimestamp(value: string): number {
 
     if (regExpISO8601.test(value)) {
         return Date.parse(value)
     }
 
-    return new Error('Transformation from ISO-8601 to UNIX isn\'t correct.')
+    ThrowError('Transformation from ISO-8601 to UNIX isn\'t correct.')
 }
 
 export default ToTimestamp;
