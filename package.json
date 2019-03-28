@@ -23,8 +23,10 @@
     "@babel/core": "^7.4.0",
     "@babel/preset-env": "^7.4.2",
     "@babel/preset-typescript": "^7.3.3",
+    "@types/crypto-js": "^3.1.43",
     "@types/jest": "^24.0.11",
     "babel-jest": "^24.5.0",
+    "crypto-js": "^3.1.9-1",
     "jest": "^24.5.0",
     "ts-jest": "^24.0.0",
     "typescript": "^3.3.4000"
