@@ -27,7 +27,7 @@ let regExpISO8601 = new RegExp(/^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3
  * To finish: UNIX timestamp (1529695777000)
  */
 
-function ToTimestamp(value: string): number {
+export function ToUnix(value: string): number {
 
     if (regExpISO8601.test(value)) {
         return Date.parse(value)
@@ -36,4 +36,6 @@ function ToTimestamp(value: string): number {
     ThrowError('Transformation from ISO-8601 to UNIX isn\'t correct.')
 }
 
-export default ToTimestamp;
+export function ToDate(value: number): any {
+    return new Date(value * 1000);
+}
