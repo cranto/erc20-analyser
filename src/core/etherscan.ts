@@ -1,8 +1,8 @@
 import CheckAddress from '../utils/check-address'
+import {ToTimestamp} from '../utils'
 import {ETHERSCAN_API_KEY} from '../constants'
 
 let etherscanApi = require('etherscan-api').init(ETHERSCAN_API_KEY)
-let stateTokens = {}
 
 /**
  * Function to get all transactions of ERC-20 tokens by address
@@ -16,14 +16,11 @@ export function GetAllTransactions(address: string): any {
         erc20List.then((data: any) => {
             data.result.forEach((element: any) => {
                 if (element.to === address.toLowerCase()) {
-                    console.log(`In: ${element.tokenName}: ${element.value}`)
-
+                    console.log(`In: ${element.tokenName}: ${element.value} / ${element.timeStamp}`)
                 } else {
-                    console.log(`Out: ${element.tokenName}: ${element.value}`)
+                    console.log(`Out: ${element.tokenName}: ${element.value} / ${ToTimestamp.ToDate(element.timeStamp)}`)
                 }
             })
-        }).then(() => {
-            console.log(stateTokens)
         })
     }
 }
