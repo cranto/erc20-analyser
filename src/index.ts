@@ -1,7 +1,4 @@
-import * as Utils from './utils'
-import * as Core from './core'
+import * as Utils from './utils';
+import * as Core from './core';
 
-export {
-    Utils,
-    Core
-}
+export { Utils, Core };

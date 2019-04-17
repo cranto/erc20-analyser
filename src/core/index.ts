@@ -1,11 +1,5 @@
-import {
-    GetAllTransactions,
-    GetCurrentEthBalance,
-    GetCurrentTokenBalance
-} from './etherscan'
+import { GetAllTransactions, GetCurrentEthBalance, GetCurrentTokenBalance } from './etherscan';
+import { GetPriceToken } from './cryptocompare';
 
-export {
-    GetAllTransactions,
-    GetCurrentEthBalance,
-    GetCurrentTokenBalance
-}
+export { GetAllTransactions, GetCurrentEthBalance, GetCurrentTokenBalance };
+export { GetPriceToken };
