@@ -39,7 +39,8 @@
     "ts-jest": "^24.0.0",
     "tslint": "^5.16.0",
     "tslint-config-prettier": "^1.18.0",
-    "typescript": "^3.3.4000"
+    "typescript": "^3.3.4000",
+    "tiny-async-pool": "^1.0.4"
   },
   "dependencies": {
     "axios": "^0.18.0"
