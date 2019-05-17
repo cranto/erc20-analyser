@@ -1,5 +1,4 @@
-import { request } from '../utils/request';
-import ThrowError from '../utils/throw-error';
+import * as Utils from '../utils';
 import { CRYPTOCOMPARE_API_KEY, CRYPTOCOMPARE_API } from '../constants';
 
 /**
@@ -12,7 +11,7 @@ import { CRYPTOCOMPARE_API_KEY, CRYPTOCOMPARE_API } from '../constants';
  */
 export function GetPriceToken(tokenSymbol: string, timestamp: string | number, toConvert?: string): any {
   let localTimestamp = timestamp;
-  let toCryptoCurrency = 'ETH';
+  let toCryptoCurrency = toConvert ? toConvert.toUpperCase() : 'ETH';
   let startCurrency = tokenSymbol.toUpperCase();
 
   /**
@@ -25,25 +24,25 @@ export function GetPriceToken(tokenSymbol: string, timestamp: string | number, t
    * 2. 15a55505512 -> 15
    */
   if (typeof timestamp === 'string') {
-    localTimestamp = parseInt(timestamp);
+    localTimestamp = new Date(timestamp).getTime();
   }
-
-  if (toConvert) {
-    toCryptoCurrency = toConvert.toUpperCase();
-  }
-
-  const res = request(
-    `${CRYPTOCOMPARE_API}pricehistorical?fsym=${startCurrency}&tsyms=${toCryptoCurrency}&ts=${localTimestamp}&api_key={${CRYPTOCOMPARE_API_KEY}}`,
-  );
 
   const responseData = async () => {
-    let dataInformation = await res;
+    try {
+      const res = await Utils.Request(
+        `${CRYPTOCOMPARE_API}pricehistorical?fsym=${startCurrency}&tsyms=${toCryptoCurrency}&ts=${localTimestamp}&api_key={${CRYPTOCOMPARE_API_KEY}}`,
+      );
 
-    if (dataInformation.data.Response === 'Error') {
-      return ThrowError(dataInformation.data.Message);
+      const dataInformation = await res;
+
+      if (dataInformation.data.Response === 'Error') {
+        return null;
+      }
+
+      return dataInformation.data[startCurrency][toCryptoCurrency];
+    } catch (error) {
+      Utils.ThrowError(error);
     }
-
-    return dataInformation.data[startCurrency][toCryptoCurrency];
   };
 
   return responseData();
