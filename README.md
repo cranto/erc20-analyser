@@ -7,4 +7,4 @@ This is a non-profit & opensource project for developers. If you want to use thi
 
 # How do I use it?
 
-Get API keys for third party services and change in ``config.js``
+Get API keys for third party services and change in ``./src/constants.ts``
