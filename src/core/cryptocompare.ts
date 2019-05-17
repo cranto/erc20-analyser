@@ -1,4 +1,5 @@
 import * as Utils from '../utils';
+import { PriceToken } from '../interfaces';
 import { CRYPTOCOMPARE_API_KEY, CRYPTOCOMPARE_API } from '../constants';
 
 /**
@@ -9,10 +10,10 @@ import { CRYPTOCOMPARE_API_KEY, CRYPTOCOMPARE_API } from '../constants';
  * @param toConvert {string} Default: ETH
  * @returns {Promise} Promise object represents the answer about convert A-currency (ERC20 Token) to B-currency
  */
-export function GetPriceToken(tokenSymbol: string, timestamp: string | number, toConvert?: string): any {
-  let localTimestamp = timestamp;
-  let toCryptoCurrency = toConvert ? toConvert.toUpperCase() : 'ETH';
-  let startCurrency = tokenSymbol.toUpperCase();
+export function GetPriceToken(options: PriceToken): Promise<any> {
+  let localTimestamp = options.timestamp;
+  let toCryptoCurrency = options.toConvert ? options.toConvert.toUpperCase() : 'ETH';
+  let startCurrency = options.tokenSymbol.toUpperCase();
 
   /**
    * If you post incorrect timestamp with letters,
@@ -23,8 +24,8 @@ export function GetPriceToken(tokenSymbol: string, timestamp: string | number, t
    * 1. 1555505512a -> 1555505512
    * 2. 15a55505512 -> 15
    */
-  if (typeof timestamp === 'string') {
-    localTimestamp = new Date(timestamp).getTime();
+  if (typeof options.timestamp === 'string') {
+    localTimestamp = new Date(options.timestamp).getTime();
   }
 
   const responseData = async () => {

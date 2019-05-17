@@ -1,4 +1,5 @@
 import asyncPool from 'tiny-async-pool';
+import { address } from '../interfaces';
 import CheckAddress from '../utils/check-address';
 import { GetPriceToken } from './cryptocompare';
 import * as Utils from '../utils';
@@ -20,7 +21,7 @@ function decNum(numero: number): number {
  * @param {string} address
  * @return {object}
  */
-export function GetAllTransactions(address: string): any {
+export function GetAllTransactions(address: address): any {
   if (CheckAddress(address)) {
     const erc20List = Utils.Request(
       `${ETHERSCAN_API}${ETHERSCAN_API_ACCOUNT}${ETHERSCAN_API_TXLIST}${ETHERSCAN_API_ADDRESS}${address}&startblock=0&endblock=99999999&sort=asc&apikey=${ETHERSCAN_API_KEY}`,
@@ -70,7 +71,7 @@ export function GetAllTransactions(address: string): any {
  * Function to get current balance of ETH
  * @param address
  */
-export function GetCurrentEthBalance(address: string): any {
+export function GetCurrentEthBalance(address: address): any {
   if (CheckAddress(address)) {
     const res = Utils.Request(
       `${ETHERSCAN_API}${ETHERSCAN_API_ACCOUNT}${ETHERSCAN_API_BALANCE}${ETHERSCAN_API_ADDRESS}${address}&tag=latest&apikey=${ETHERSCAN_API_KEY}`,
@@ -102,7 +103,7 @@ function templatePriceToken(startData: any, finalArray: any[]) {
       setTimeout(
         () =>
           resolve(
-            GetPriceToken(i['symbol'][0], i['date']).then((item: number) => {
+            GetPriceToken({ tokenSymbol: i['symbol'][0], timestamp: i['date'] }).then((item: number) => {
               if (item !== null) {
                 finalArray = [
                   ...finalArray,
@@ -130,7 +131,7 @@ function templatePriceToken(startData: any, finalArray: any[]) {
  * @param address string
  * * @returns {Promise} Promise with object in transactions
  */
-export function GetInTransactions(address: string) {
+export function GetInTransactions(address: address) {
   let arrayInTransactions = [];
 
   return GetAllTransactions(address).then((res: { In: any }) => {
@@ -143,7 +144,7 @@ export function GetInTransactions(address: string) {
  * @param address string
  * @returns {Promise} Promise with object out transactions
  */
-export function GetOutTransactions(address: string): Promise<any> {
+export function GetOutTransactions(address: address): Promise<any> {
   let arrayOutTransactions = [];
 
   return GetAllTransactions(address).then((res: { Out: any }) => {
