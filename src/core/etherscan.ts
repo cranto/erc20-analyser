@@ -133,7 +133,7 @@ function templatePriceToken(startData: any, finalArray: any[]) {
 export function GetInTransactions(address: string) {
   let arrayInTransactions = [];
 
-  return GetAllTransactions(address).then((res: { In: any; }) => {
+  return GetAllTransactions(address).then((res: { In: any }) => {
     return templatePriceToken(res.In, arrayInTransactions);
   });
 }
@@ -146,14 +146,7 @@ export function GetInTransactions(address: string) {
 export function GetOutTransactions(address: string): Promise<any> {
   let arrayOutTransactions = [];
 
-  return GetAllTransactions(address).then((res: { Out: any; }) => {
+  return GetAllTransactions(address).then((res: { Out: any }) => {
     return templatePriceToken(res.Out, arrayOutTransactions);
   });
 }
-
-let promiseIn = GetInTransactions('0x790989C77cbb151C8A9568a4B740fc17245B8dd8');
-let promiseOut = GetOutTransactions('0x790989C77cbb151C8A9568a4B740fc17245B8dd8');
-
-Promise.all([promiseIn, promiseOut]).then(results => {
-  console.log(results);
-});
