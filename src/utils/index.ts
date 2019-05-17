@@ -1,5 +1,6 @@
 import * as CheckAddress from './check-address';
 import * as ToTimestamp from './timestamp';
-import * as ThrowError from './throw-error';
+import ThrowError from './throw-error';
+import { Request } from './request';
 
-export { CheckAddress, ToTimestamp, ThrowError };
+export { CheckAddress, ToTimestamp, ThrowError, Request };

@@ -1,4 +1,4 @@
-import CheckAddress from '../check-address'
+import CheckAddress from '../check-address';
 
 it('Check correct ETH address', () => {
   expect(CheckAddress('0x37DF0D9bEccd412951500f0e33f0c3721Fb4dC31')).toBe(true);

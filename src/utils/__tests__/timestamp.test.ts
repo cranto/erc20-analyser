@@ -1,4 +1,4 @@
-import { ToUnix, ToDate} from '../timestamp'
+import { ToUnix, ToDate } from '../timestamp';
 
 it('Check correct timestamp', () => {
   expect(ToUnix('2018-06-22T19:29:37.000Z')).toBe(1529695777000);

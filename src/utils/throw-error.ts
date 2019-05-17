@@ -9,7 +9,7 @@
  * https://medium.com/@iaincollins/error-handling-in-javascript-a6172ccdf9af
  */
 function ThrowError(message: string): never {
-  throw new Error(`Something gone wrong: ${message}`);
+  throw new Error(`Text of error: ${message}`);
 }
 
 export default ThrowError;
