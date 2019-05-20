@@ -2,19 +2,19 @@ import { GetPriceToken } from '..';
 
 it('Get price token for normal request', async () => {
   expect.assertions(1);
-  const data = await GetPriceToken('ETH', 1555505512);
+  const data = await GetPriceToken({ tokenSymbol: 'ETH', timestamp: 1555505512 });
   expect(data).toEqual(1);
 });
 
 it('Get price token for normal request with small letters', async () => {
   expect.assertions(1);
-  const data = await GetPriceToken('eth', 1555505512);
+  const data = await GetPriceToken({ tokenSymbol: 'eth', timestamp: 1555505512 });
   expect(data).toEqual(1);
 });
 
 it('Get price token for full request', async () => {
   expect.assertions(1);
-  const data = await GetPriceToken('ETH', 1555505512, 'BTC');
+  const data = await GetPriceToken({ tokenSymbol: 'ETH', timestamp: 1555505512, toConvert: 'BTC' });
   expect(data).toEqual(0.03181);
 });
 

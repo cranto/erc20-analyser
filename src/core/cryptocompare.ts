@@ -28,6 +28,10 @@ export function GetPriceToken(options: PriceToken): Promise<any> {
     localTimestamp = new Date(options.timestamp).getTime();
   }
 
+  /**
+   * TODO: Adding function for escape symbols for emoji's
+   */
+
   const responseData = async () => {
     try {
       const res = await Utils.Request(
