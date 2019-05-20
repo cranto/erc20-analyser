@@ -103,19 +103,23 @@ function templatePriceToken(startData: any, finalArray: any[]) {
       setTimeout(
         () =>
           resolve(
-            GetPriceToken({ tokenSymbol: i['symbol'][0], timestamp: i['date'] }).then((item: number) => {
-              if (item !== null) {
-                finalArray = [
-                  ...finalArray,
-                  {
-                    Name: i['name'][0],
-                    'Value in ETH': item * i['value'],
-                    Symbol: i['symbol'][0],
-                    Date: i['date'],
-                  },
-                ];
-              }
-            }),
+            GetPriceToken({ tokenSymbol: i['symbol'][0], timestamp: i['date'] })
+              .then((item: number) => {
+                if (item !== null) {
+                  finalArray = [
+                    ...finalArray,
+                    {
+                      Name: i['name'][0],
+                      Eth: item * i['value'],
+                      Symbol: i['symbol'][0],
+                      Date: i['date'],
+                    },
+                  ];
+                }
+              })
+              .catch(err => {
+                console.log(err);
+              }),
           ),
         i,
       ),
@@ -129,9 +133,9 @@ function templatePriceToken(startData: any, finalArray: any[]) {
 /**
  * Get In Transactions by address
  * @param address string
- * * @returns {Promise} Promise with object in transactions
+ * @returns {Promise} Promise with object in transactions
  */
-export function GetInTransactions(address: address) {
+export function GetInTransactions(address: address): Promise<any> {
   let arrayInTransactions = [];
 
   return GetAllTransactions(address).then((res: { In: any }) => {
@@ -150,4 +154,35 @@ export function GetOutTransactions(address: address): Promise<any> {
   return GetAllTransactions(address).then((res: { Out: any }) => {
     return templatePriceToken(res.Out, arrayOutTransactions);
   });
+}
+
+export function GetResultErc20Transactions(address: address) {
+  const outSum = GetOutTransactions(address);
+  const inSum = GetInTransactions(address);
+
+  return Promise.all([outSum, inSum]).then(r => {
+    return r;
+  });
+}
+
+/**
+ * Function for sum all similar transcations
+ */
+function sumErc20Transactions(arr: any) {
+  let resultObj = {};
+
+  arr.reduce((acc: any, curr: any) => {
+    let key = curr.Symbol;
+
+    if (!resultObj[key]) {
+      resultObj[key] = curr;
+      acc.push(resultObj[key]);
+    } else {
+      resultObj[key].Eth += curr.Eth;
+    }
+
+    return acc;
+  }, []);
+
+  return resultObj;
 }
