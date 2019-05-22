@@ -1,5 +1,5 @@
 import asyncPool from 'tiny-async-pool';
-import { address } from '../interfaces';
+import { EthAddress } from '../interfaces';
 import CheckAddress from '../utils/check-address';
 import { GetPriceToken } from './cryptocompare';
 import * as Utils from '../utils';
@@ -21,20 +21,20 @@ function decNum(numero: number): number {
  * @param {string} address
  * @return {object}
  */
-export function GetAllTransactions(address: address): any {
+export function GetAllTransactions(address: EthAddress): any {
   if (CheckAddress(address)) {
     const erc20List = Utils.Request(
       `${ETHERSCAN_API}${ETHERSCAN_API_ACCOUNT}${ETHERSCAN_API_TXLIST}${ETHERSCAN_API_ADDRESS}${address}&startblock=0&endblock=99999999&sort=asc&apikey=${ETHERSCAN_API_KEY}`,
     );
 
     const responseData = async () => {
-      let dataInfo = await erc20List;
+      const dataInfo = await erc20List;
 
       return dataInfo;
     };
 
     return responseData().then(res => {
-      let allTransactions = {
+      const allTransactions = {
         In: [],
         Out: [],
       };
@@ -43,20 +43,20 @@ export function GetAllTransactions(address: address): any {
           allTransactions.In = [
             ...allTransactions.In,
             {
+              date: Utils.ToTimestamp.ToDate(element.timeStamp),
               name: [element.tokenName],
               symbol: [element.tokenSymbol],
               value: decNum(element.value),
-              date: Utils.ToTimestamp.ToDate(element.timeStamp),
             },
           ];
         } else {
           allTransactions.Out = [
             ...allTransactions.Out,
             {
+              date: Utils.ToTimestamp.ToDate(element.timeStamp),
               name: [element.tokenName],
               symbol: [element.tokenSymbol],
               value: decNum(element.value),
-              date: Utils.ToTimestamp.ToDate(element.timeStamp),
             },
           ];
         }
@@ -71,20 +71,20 @@ export function GetAllTransactions(address: address): any {
  * Function to get current balance of ETH
  * @param address
  */
-export function GetCurrentEthBalance(address: address): any {
+export function GetCurrentEthBalance(address: EthAddress): any {
   if (CheckAddress(address)) {
     const res = Utils.Request(
       `${ETHERSCAN_API}${ETHERSCAN_API_ACCOUNT}${ETHERSCAN_API_BALANCE}${ETHERSCAN_API_ADDRESS}${address}&tag=latest&apikey=${ETHERSCAN_API_KEY}`,
     );
 
     const responseData = async () => {
-      let dataInfo = await res;
+      const dataInfo = await res;
 
       return dataInfo;
     };
 
-    return responseData().then(res => {
-      return decNum(res.data.result);
+    return responseData().then(response => {
+      return decNum(response.data.result);
     });
   }
 
@@ -98,27 +98,27 @@ export function GetCurrentEthBalance(address: address): any {
  * @param finalArray array
  */
 function templatePriceToken(startData: any, finalArray: any[]) {
-  const timeout = (i: number) =>
+  const timeout = i =>
     new Promise(resolve =>
       setTimeout(
         () =>
           resolve(
-            GetPriceToken({ tokenSymbol: i['symbol'][0], timestamp: i['date'] })
+            GetPriceToken({ tokenSymbol: i.symbol[0], timestamp: i.date })
               .then((item: number) => {
                 if (item !== null) {
                   finalArray = [
                     ...finalArray,
                     {
-                      Name: i['name'][0],
-                      Eth: item * i['value'],
-                      Symbol: i['symbol'][0],
-                      Date: i['date'],
+                      Name: i.name[0],
+                      Eth: item * i.value,
+                      Symbol: i.symbol[0],
+                      Date: i.date,
                     },
                   ];
                 }
               })
               .catch(err => {
-                console.log(err);
+                return err;
               }),
           ),
         i,
@@ -135,8 +135,8 @@ function templatePriceToken(startData: any, finalArray: any[]) {
  * @param address string
  * @returns {Promise} Promise with object in transactions
  */
-export function GetInTransactions(address: address): Promise<any> {
-  let arrayInTransactions = [];
+export function GetInTransactions(address: EthAddress): Promise<any> {
+  const arrayInTransactions = [];
 
   return GetAllTransactions(address).then((res: { In: any }) => {
     return templatePriceToken(res.In, arrayInTransactions);
@@ -148,15 +148,15 @@ export function GetInTransactions(address: address): Promise<any> {
  * @param address string
  * @returns {Promise} Promise with object out transactions
  */
-export function GetOutTransactions(address: address): Promise<any> {
-  let arrayOutTransactions = [];
+export function GetOutTransactions(address: EthAddress): Promise<any> {
+  const arrayOutTransactions = [];
 
   return GetAllTransactions(address).then((res: { Out: any }) => {
     return templatePriceToken(res.Out, arrayOutTransactions);
   });
 }
 
-export function GetResultErc20Transactions(address: address) {
+export function GetResultErc20Transactions(address: EthAddress) {
   const outSum = GetOutTransactions(address);
   const inSum = GetInTransactions(address);
 
@@ -169,10 +169,10 @@ export function GetResultErc20Transactions(address: address) {
  * Function for sum all similar transcations
  */
 function sumErc20Transactions(arr: any) {
-  let resultObj = {};
+  const resultObj = {};
 
   arr.reduce((acc: any, curr: any) => {
-    let key = curr.Symbol;
+    const key = curr.Symbol;
 
     if (!resultObj[key]) {
       resultObj[key] = curr;

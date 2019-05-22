@@ -16,7 +16,7 @@
     "build": "tsc",
     "size": "size-limit",
     "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
-    "lint": "tslint -p tsconfig.json"
+    "lint": "tslint -p tsconfig.json -t codeFrame 'src/**/*.ts'"
   },
   "repository": {
     "type": "git",

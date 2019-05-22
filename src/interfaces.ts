@@ -1,6 +1,6 @@
-export type address = string;
+export type EthAddress = string;
 
-export interface PriceToken {
+export interface IPriceToken {
   /** Token abbreviation */
   tokenSymbol: string;
 
