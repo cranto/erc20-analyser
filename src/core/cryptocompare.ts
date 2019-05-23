@@ -1,4 +1,4 @@
-import { CRYPTOCOMPARE_API, CRYPTOCOMPARE_API_KEY } from '../constants';
+import { CRYPTOCOMPARE_API } from '../constants';
 import * as Utils from '../utils';
 import { IPriceToken } from '../interfaces';
 
@@ -10,7 +10,7 @@ import { IPriceToken } from '../interfaces';
  * @param toConvert {string} Default: ETH
  * @returns {Promise} Promise object represents the answer about convert A-currency (ERC20 Token) to B-currency
  */
-export function GetPriceToken(options: IPriceToken): Promise<any> {
+export function GetPriceToken(options: IPriceToken, key: string): Promise<any> {
   let localTimestamp = options.timestamp;
   const toCryptoCurrency = options.toConvert ? options.toConvert.toUpperCase() : 'ETH';
   const startCurrency = options.tokenSymbol.toUpperCase();
@@ -35,7 +35,7 @@ export function GetPriceToken(options: IPriceToken): Promise<any> {
   const responseData = async () => {
     try {
       const res = await Utils.Request(
-        `${CRYPTOCOMPARE_API}pricehistorical?fsym=${startCurrency}&tsyms=${toCryptoCurrency}&ts=${localTimestamp}&api_key={${CRYPTOCOMPARE_API_KEY}}`,
+        `${CRYPTOCOMPARE_API}pricehistorical?fsym=${startCurrency}&tsyms=${toCryptoCurrency}&ts=${localTimestamp}&api_key={${key}}`,
       );
 
       const dataInformation = await res;
