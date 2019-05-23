@@ -21,10 +21,10 @@ function decNum(numero: number): number {
  * @param {string} address
  * @return {object}
  */
-export function GetAllTransactions(address: EthAddress): any {
+export function GetAllTransactions(address: EthAddress, key: string): any {
   if (CheckAddress(address)) {
     const erc20List = Utils.Request(
-      `${ETHERSCAN_API}${ETHERSCAN_API_ACCOUNT}${ETHERSCAN_API_TXLIST}${ETHERSCAN_API_ADDRESS}${address}&startblock=0&endblock=99999999&sort=asc&apikey=${ETHERSCAN_API_KEY}`,
+      `${ETHERSCAN_API}${ETHERSCAN_API_ACCOUNT}${ETHERSCAN_API_TXLIST}${ETHERSCAN_API_ADDRESS}${address}&startblock=0&endblock=99999999&sort=asc&apikey=${key}`,
     );
 
     const responseData = async () => {
@@ -71,10 +71,10 @@ export function GetAllTransactions(address: EthAddress): any {
  * Function to get current balance of ETH
  * @param address
  */
-export function GetCurrentEthBalance(address: EthAddress): any {
+export function GetCurrentEthBalance(address: EthAddress, key: string): any {
   if (CheckAddress(address)) {
     const res = Utils.Request(
-      `${ETHERSCAN_API}${ETHERSCAN_API_ACCOUNT}${ETHERSCAN_API_BALANCE}${ETHERSCAN_API_ADDRESS}${address}&tag=latest&apikey=${ETHERSCAN_API_KEY}`,
+      `${ETHERSCAN_API}${ETHERSCAN_API_ACCOUNT}${ETHERSCAN_API_BALANCE}${ETHERSCAN_API_ADDRESS}${address}&tag=latest&apikey=${key}`,
     );
 
     const responseData = async () => {
@@ -125,6 +125,9 @@ function templatePriceToken(startData: any, finalArray: any[]) {
       ),
     );
 
+  /**
+   * To implement the concurrency behavior of promises
+   */
   return asyncPool(2, startData, timeout).then(() => {
     return finalArray;
   });
@@ -135,10 +138,10 @@ function templatePriceToken(startData: any, finalArray: any[]) {
  * @param address string
  * @returns {Promise} Promise with object in transactions
  */
-export function GetInTransactions(address: EthAddress): Promise<any> {
+export function GetInTransactions(address: EthAddress, key: string): Promise<any> {
   const arrayInTransactions = [];
 
-  return GetAllTransactions(address).then((res: { In: any }) => {
+  return GetAllTransactions(address, key).then((res: { In: any }) => {
     return templatePriceToken(res.In, arrayInTransactions);
   });
 }
@@ -148,17 +151,17 @@ export function GetInTransactions(address: EthAddress): Promise<any> {
  * @param address string
  * @returns {Promise} Promise with object out transactions
  */
-export function GetOutTransactions(address: EthAddress): Promise<any> {
+export function GetOutTransactions(address: EthAddress, key: string): Promise<any> {
   const arrayOutTransactions = [];
 
-  return GetAllTransactions(address).then((res: { Out: any }) => {
+  return GetAllTransactions(address, key).then((res: { Out: any }) => {
     return templatePriceToken(res.Out, arrayOutTransactions);
   });
 }
 
-export function GetResultErc20Transactions(address: EthAddress) {
-  const outSum = GetOutTransactions(address);
-  const inSum = GetInTransactions(address);
+export function GetResultErc20Transactions(address: EthAddress, key: string) {
+  const outSum = GetOutTransactions(address, key);
+  const inSum = GetInTransactions(address, key);
 
   return Promise.all([outSum, inSum]).then(r => {
     return r;
@@ -166,11 +169,17 @@ export function GetResultErc20Transactions(address: EthAddress) {
 }
 
 /**
- * Function for sum all similar transcations
+ * Function to sum identical tokens
  */
-function sumErc20Transactions(arr: any) {
+function sumErc20Transactions(arr: any[]) {
+  /**
+   * Final object
+   */
   const resultObj = {};
 
+  /**
+   * TODO: Change function to sum only numeric values
+   */
   arr.reduce((acc: any, curr: any) => {
     const key = curr.Symbol;
 

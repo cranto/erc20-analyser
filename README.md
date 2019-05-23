@@ -17,11 +17,26 @@ This is a non-profit & opensource project for developers. If you want to use thi
 npm i erc20-analyser
 ```
 
-## Get API keys to third-party services and change config
-
-Config: ```./src/constants.ts```
+## Get API keys to third-party services
 
 1. [Cryptocompare](https://www.cryptocompare.com/)
 2. [Etherscan](https://etherscan.io/)
 
+# Usage
 
+## Initialization
+```
+import * as ERC20Analyser from 'erc20-analyser';
+
+const cryptocompareToken = 'your-cryptocompare-api-token';
+const etherscanToken = 'your-etherscan-api-token';
+
+const analyser = new ERC20Analyser(cryptocompareToken, etherscanToken);
+```
+
+### Get Ethereum balance by ETH address
+```
+analyser.getCurrentEthBalance('0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B').then(data => {
+  console.log(data)
+});
+```
