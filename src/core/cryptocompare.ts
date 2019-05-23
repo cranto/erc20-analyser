@@ -3,7 +3,7 @@ import * as Utils from '../utils';
 import { IPriceToken } from '../interfaces';
 
 /**
- * Function for token price by date
+ * Function for get token price by date
  *
  * @param tokenSymbol {string} To start
  * @param timestamp {string | number} Unix Timestamp
