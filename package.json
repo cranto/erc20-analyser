@@ -9,6 +9,7 @@
     }
   ],
   "scripts": {
+    "rm-rf": "rm -rf ./src/**/*.js",
     "test": "jest --config jestconfig.json",
     "type-check": "tsc --noEmit",
     "type-check:watch": "npm run type-check -- --watch",
