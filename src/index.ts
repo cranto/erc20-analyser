@@ -1,5 +1,6 @@
 import { GetAllTransactions, GetCurrentEthBalance, GetOutTransactions, GetInTransactions } from './core/etherscan';
-import { EthAddress } from './interfaces';
+import { GetPriceToken } from './core/cryptocompare';
+import { EthAddress, IPriceToken } from './interfaces';
 import * as Utils from './utils';
 
 export class ERC20Analyser {
@@ -21,13 +22,22 @@ export class ERC20Analyser {
     GetCurrentEthBalance(address, this._configuration.etherscanKey);
 
   /**
-   * Function to get out transactions by address
+   * Function to get outgoing transactions by address
    */
   public getOutTransactions = (address: EthAddress) =>
     GetOutTransactions(address, this._configuration.cryptocompareKey);
 
   /**
-   * Function to get in transactions by address
+   * Function to get incoming transactions by address
    */
   public getInTransactions = (address: EthAddress) => GetInTransactions(address, this._configuration.cryptocompareKey);
+
+  /**
+   * Function for get token price by date
+   *
+   * @param tokenSymbol {string} To start
+   * @param timestamp {string | number} Unix Timestamp
+   * @param toConvert {string} Default: ETH
+   */
+  public getPriceToken = (obj: IPriceToken) => GetPriceToken(obj, this._configuration.cryptocompareKey);
 }
