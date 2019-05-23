@@ -37,6 +37,20 @@ const analyser = new ERC20Analyser(cryptocompareToken, etherscanToken);
 ### Get Ethereum balance by ETH address
 ```
 analyser.getCurrentEthBalance('0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B').then(data => {
-  console.log(data)
+  console.log(data);
 });
+```
+
+### Get all incoming ERC20-Token transactions
+```
+analyser.getInTransactions('0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B').then(data => {
+  console.log(data);
+})
+```
+
+### Get all outgoing ERC20-Token transactions
+```
+analyser.getOutTransactions('0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B').then(data => {
+  console.log(data);
+})
 ```
