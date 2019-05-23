@@ -96,13 +96,13 @@ export function GetCurrentEthBalance(address: EthAddress, key: string): any {
  * @param startData object
  * @param finalArray array
  */
-function templatePriceToken(startData: any, finalArray: any[]) {
+function templatePriceToken(startData: any, finalArray: any[], key: string) {
   const timeout = i =>
     new Promise(resolve =>
       setTimeout(
         () =>
           resolve(
-            GetPriceToken({ tokenSymbol: i.symbol[0], timestamp: i.date })
+            GetPriceToken({ tokenSymbol: i.symbol[0], timestamp: i.date }, key)
               .then((item: number) => {
                 if (item !== null) {
                   finalArray = [
@@ -141,7 +141,7 @@ export function GetInTransactions(address: EthAddress, key: string): Promise<any
   const arrayInTransactions = [];
 
   return GetAllTransactions(address, key).then((res: { In: any }) => {
-    return templatePriceToken(res.In, arrayInTransactions);
+    return templatePriceToken(res.In, arrayInTransactions, key);
   });
 }
 
@@ -154,7 +154,7 @@ export function GetOutTransactions(address: EthAddress, key: string): Promise<an
   const arrayOutTransactions = [];
 
   return GetAllTransactions(address, key).then((res: { Out: any }) => {
-    return templatePriceToken(res.Out, arrayOutTransactions);
+    return templatePriceToken(res.Out, arrayOutTransactions, key);
   });
 }
 
