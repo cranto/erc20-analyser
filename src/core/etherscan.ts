@@ -9,7 +9,6 @@ import {
   ETHERSCAN_API_BALANCE,
   ETHERSCAN_API_ADDRESS,
   ETHERSCAN_API_TXLIST,
-  ETHERSCAN_API_KEY,
 } from '../constants';
 
 function decNum(numero: number): number {

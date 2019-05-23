@@ -1,12 +1,12 @@
 import { GetAllTransactions, GetCurrentEthBalance, GetOutTransactions, GetInTransactions } from './core/etherscan';
 import { EthAddress } from './interfaces';
-import { Configuration } from './utils/configuration';
+import * as Utils from './utils';
 
 export class ERC20Analyser {
-  protected _configuration: Configuration;
+  protected _configuration: Utils.Configuration;
 
   public constructor(cryptocompareKey: string, etherscanKey: string) {
-    this._configuration = new Configuration(cryptocompareKey, etherscanKey);
+    this._configuration = new Utils.Configuration(cryptocompareKey, etherscanKey);
   }
 
   /**
