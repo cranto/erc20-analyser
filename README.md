@@ -61,3 +61,10 @@ analyser.getPriceToken({tokenSymbol: 'WAVES', timestamp: 1546300800, toConvert: 
   console.log(data);
 });
 ```
+
+### Get all incoming and outgoing ERC20-Token transactions
+```typescript
+analyser.getResultErc20Transactions('0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B').then(data => {
+  console.log(data);
+});
+```
