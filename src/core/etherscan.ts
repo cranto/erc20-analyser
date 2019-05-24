@@ -138,10 +138,13 @@ function templatePriceToken(startData: any, finalArray: any[], key: string) {
  * @returns {Promise} Promise with object in transactions
  */
 export function GetInTransactions(address: EthAddress, key: string): Promise<any> {
-  const arrayInTransactions = [];
+  const resultObject = {
+    title: 'In',
+    data: [],
+  };
 
   return GetAllTransactions(address, key).then((res: { In: any }) => {
-    return templatePriceToken(res.In, arrayInTransactions, key);
+    return templatePriceToken(res.In, resultObject.data, key);
   });
 }
 
@@ -151,10 +154,13 @@ export function GetInTransactions(address: EthAddress, key: string): Promise<any
  * @returns {Promise} Promise with object out transactions
  */
 export function GetOutTransactions(address: EthAddress, key: string): Promise<any> {
-  const arrayOutTransactions = [];
+  const resultObject = {
+    title: 'Out',
+    data: [],
+  };
 
   return GetAllTransactions(address, key).then((res: { Out: any }) => {
-    return templatePriceToken(res.Out, arrayOutTransactions, key);
+    return templatePriceToken(res.Out, resultObject.data, key);
   });
 }
 
@@ -162,8 +168,8 @@ export function GetResultErc20Transactions(address: EthAddress, key: string) {
   const outSum = GetOutTransactions(address, key);
   const inSum = GetInTransactions(address, key);
 
-  return Promise.all([outSum, inSum]).then(r => {
-    return r;
+  return Promise.all([outSum, inSum]).then(result => {
+    return result;
   });
 }
 
