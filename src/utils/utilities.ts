@@ -37,3 +37,12 @@ export const isNumber = (value: any): boolean => {
 export const isArray = (value: any): boolean => {
   return Array.isArray(value);
 };
+
+/**
+ *
+ * @param {*} numero
+ * @returns {number}
+ */
+export const decNum = (numero: number): number => {
+  return numero / 10 ** 18;
+};
