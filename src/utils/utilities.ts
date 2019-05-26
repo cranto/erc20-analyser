@@ -39,7 +39,7 @@ export const isArray = (value: any): boolean => {
 };
 
 /**
- *
+ * Internal helper to transform numero to decimal format
  * @param {number} numero
  * @param {number} decimal
  * @returns {number}
