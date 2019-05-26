@@ -40,9 +40,10 @@ export const isArray = (value: any): boolean => {
 
 /**
  *
- * @param {*} numero
+ * @param {number} numero
+ * @param {number} decimal
  * @returns {number}
  */
-export const decNum = (numero: number): number => {
-  return numero / 10 ** 18;
+export const decNum = (numero: number, decimal: number): number => {
+  return numero / 10 ** decimal;
 };
