@@ -25,7 +25,7 @@ export function GetPriceToken(options: IPriceToken, key: string): Promise<any> {
    * 2. 15a55505512 -> 15
    */
   if (typeof options.timestamp === 'string') {
-    localTimestamp = new Date(options.timestamp).getTime();
+    localTimestamp = Number(options.timestamp);
   }
 
   /**
