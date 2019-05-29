@@ -6,6 +6,7 @@ export const ETHERSCAN_API_ACCOUNT = 'account&';
 export const ETHERSCAN_API_BALANCE = '&action=balance&';
 export const ETHERSCAN_API_TXLIST = '&action=tokentx';
 export const ETHERSCAN_API_ADDRESS = '&address=';
+export const ETHERSCAN_API_TOKENBALANCE = '&action=tokenbalance&contractaddress=';
 
 /**
  * Cryptocompare.com constants
@@ -17,3 +18,8 @@ export const CRYPTOCOMPARE_API = 'https://min-api.cryptocompare.com/data/';
  * Documentation: https://www.coingecko.com/api/documentations/v3#/
  */
 export const COINGECKO_API = 'https://api.coingecko.com/api/v3/';
+
+/**
+ * TokenBalance.com constants
+ */
+export const TOKENBALANCE_API = 'https://api.tokenbalance.com/token/';
