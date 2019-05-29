@@ -9,10 +9,31 @@ import {
   ETHERSCAN_API_BALANCE,
   ETHERSCAN_API_ADDRESS,
   ETHERSCAN_API_TXLIST,
+  ETHERSCAN_API_TOKENBALANCE,
 } from '../constants';
 
-function decNum(numero: number): number {
-  return numero / 10 ** 18;
+/**
+ * Function to get current balance of token
+ * @param contract
+ * @param address
+ * @param key
+ */
+export function GetCurrentERC20TokenBalance(contract: string, address: EthAddress, key: string) {
+  const tokenBalance = Utils.Request(
+    `${ETHERSCAN_API}${ETHERSCAN_API_ACCOUNT}${ETHERSCAN_API_TOKENBALANCE}${contract}${ETHERSCAN_API_ADDRESS}${address}&tag=latest&apiKey=${key}`,
+  );
+
+  const request = async () => {
+    const response = await tokenBalance;
+
+    if (response.data.status === '1' && response.data.message === 'OK') {
+      return Utils.Checkers.decNum(response.data.result, 18);
+    } else {
+      Utils.ThrowError(response.data.result);
+    }
+  };
+
+  return request();
 }
 
 /**
@@ -27,37 +48,42 @@ export function GetAllTransactions(address: EthAddress, key: string): any {
     );
 
     const responseData = async () => {
-      const dataInfo = await erc20List;
+      const data = await erc20List;
 
-      return dataInfo;
+      return data;
+    };
+
+    let allTransactions = {
+      In: [],
+      Out: [],
+    };
+
+    let makeTransaction = (element: {
+      timeStamp: any;
+      contractAddress: any;
+      tokenName: any;
+      tokenSymbol: any;
+      value: number;
+      tokenDecimal: number;
+      gasPrice: number;
+      gasUsed: number;
+    }) => {
+      return {
+        date: Number(element.timeStamp),
+        contractAddress: element.contractAddress,
+        name: element.tokenName,
+        symbol: element.tokenSymbol,
+        value: Utils.Checkers.decNum(element.value, element.tokenDecimal),
+        gasUsed: Utils.Checkers.decNum(element.gasPrice, 18) * element.gasUsed,
+      };
     };
 
     return responseData().then(res => {
-      const allTransactions = {
-        In: [],
-        Out: [],
-      };
       res.data.result.forEach((element: any) => {
         if (element.to === address.toLowerCase()) {
-          allTransactions.In = [
-            ...allTransactions.In,
-            {
-              date: Utils.ToTimestamp.ToDate(element.timeStamp),
-              name: [element.tokenName],
-              symbol: [element.tokenSymbol],
-              value: decNum(element.value),
-            },
-          ];
+          allTransactions.In = [...allTransactions.In, makeTransaction(element)];
         } else {
-          allTransactions.Out = [
-            ...allTransactions.Out,
-            {
-              date: Utils.ToTimestamp.ToDate(element.timeStamp),
-              name: [element.tokenName],
-              symbol: [element.tokenSymbol],
-              value: decNum(element.value),
-            },
-          ];
+          allTransactions.Out = [...allTransactions.Out, makeTransaction(element)];
         }
       });
 
@@ -83,7 +109,7 @@ export function GetCurrentEthBalance(address: EthAddress, key: string): any {
     };
 
     return responseData().then(response => {
-      return decNum(response.data.result);
+      return Utils.Checkers.decNum(response.data.result, 18);
     });
   }
 
@@ -102,15 +128,15 @@ function templatePriceToken(startData: any, finalArray: any[], key: string) {
       setTimeout(
         () =>
           resolve(
-            GetPriceToken({ tokenSymbol: i.symbol[0], timestamp: i.date }, key)
+            GetPriceToken({ tokenSymbol: i.symbol, timestamp: i.date }, key)
               .then((item: number) => {
                 if (item !== null) {
                   finalArray = [
                     ...finalArray,
                     {
-                      Name: i.name[0],
+                      Name: i.name,
                       Eth: item * i.value,
-                      Symbol: i.symbol[0],
+                      Symbol: i.symbol,
                       Date: i.date,
                     },
                   ];
@@ -169,18 +195,27 @@ export function GetResultErc20Transactions(address: EthAddress, key: string) {
   const inSum = GetInTransactions(address, key);
 
   return Promise.all([outSum, inSum]).then(result => {
-    return result;
+    let outTransactions = SumTransactions(result[0]);
+    let inTransactions = SumTransactions(result[1]);
+
+    let obj = {};
+
+    Object.keys(outTransactions).map(a => {
+      obj[a] = outTransactions[a] - inTransactions[a];
+    });
+
+    return obj;
   });
 }
 
 /**
  * Function to sum identical tokens
  */
-function sumErc20Transactions(arr: any[]) {
+export function SumTransactions(arr: any[]) {
   /**
    * Final object
    */
-  const resultObj = {};
+  let resultObj = {};
 
   /**
    * TODO: Change function to sum only numeric values
@@ -189,10 +224,13 @@ function sumErc20Transactions(arr: any[]) {
     const key = curr.Symbol;
 
     if (!resultObj[key]) {
-      resultObj[key] = curr;
-      acc.push(resultObj[key]);
+      resultObj = {
+        ...resultObj,
+        [key]: curr.Eth,
+      };
+      acc.push(resultObj);
     } else {
-      resultObj[key].Eth += curr.Eth;
+      resultObj[key] += curr.Eth;
     }
 
     return acc;

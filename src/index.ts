@@ -1,11 +1,4 @@
-import {
-  GetAllTransactions,
-  GetCurrentEthBalance,
-  GetOutTransactions,
-  GetInTransactions,
-  GetResultErc20Transactions,
-} from './core/etherscan';
-import { GetPriceToken } from './core/cryptocompare';
+import * as Core from './core';
 import { EthAddress, IPriceToken } from './interfaces';
 import * as Utils from './utils';
 
@@ -19,24 +12,26 @@ export class ERC20Analyser {
   /**
    * Function to get all transactions of ERC-20 tokens by address
    */
-  public getAllTransactions = (address: EthAddress) => GetAllTransactions(address, this._configuration.etherscanKey);
+  public getAllTransactions = (address: EthAddress) =>
+    Core.GetAllTransactions(address, this._configuration.etherscanKey);
 
   /**
    * Function to get current balance of ETH
    */
   public getCurrentEthBalance = (address: EthAddress) =>
-    GetCurrentEthBalance(address, this._configuration.etherscanKey);
+    Core.GetCurrentEthBalance(address, this._configuration.etherscanKey);
 
   /**
    * Function to get outgoing transactions by address
    */
   public getOutTransactions = (address: EthAddress) =>
-    GetOutTransactions(address, this._configuration.cryptocompareKey);
+    Core.GetOutTransactions(address, this._configuration.cryptocompareKey);
 
   /**
    * Function to get incoming transactions by address
    */
-  public getInTransactions = (address: EthAddress) => GetInTransactions(address, this._configuration.cryptocompareKey);
+  public getInTransactions = (address: EthAddress) =>
+    Core.GetInTransactions(address, this._configuration.cryptocompareKey);
 
   /**
    * Function for get token price by date
@@ -45,11 +40,22 @@ export class ERC20Analyser {
    * @param timestamp {string | number} Unix Timestamp
    * @param toConvert {string} Default: ETH
    */
-  public getPriceToken = (obj: IPriceToken) => GetPriceToken(obj, this._configuration.cryptocompareKey);
+  public getPriceToken = (obj: IPriceToken) => Core.GetPriceToken(obj, this._configuration.cryptocompareKey);
 
   /**
    * Function returns all incoming and outgoing transactions
    */
   public getResultErc20Transactions = (address: EthAddress) =>
-    GetResultErc20Transactions(address, this._configuration.cryptocompareKey);
+    Core.GetResultErc20Transactions(address, this._configuration.cryptocompareKey);
+
+  /**
+   * TODO: all transactions
+   */
+  public sumTransactions = (arr: []) => Core.SumTransactions(arr);
+
+  /**
+   * TODO: update logic of this function
+   */
+  public getCurrentERC20TokenBalance = (address, contract) =>
+    Core.GetCurrentERC20TokenBalance(address, contract, this._configuration.etherscanKey);
 }
