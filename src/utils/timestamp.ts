@@ -17,7 +17,7 @@ const regExpISO8601 = new RegExp(
 /**
  *
  * @param {string} value
- * function to convert human readable time to UNIX timestamp
+ * Helper function to convert human readable time to UNIX timestamp
  * Using function Date.parse() but if get parameter with date from another API to change this function
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/parse#Using_Date.parse()
  *
