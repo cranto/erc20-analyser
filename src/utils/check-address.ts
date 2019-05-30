@@ -1,11 +1,17 @@
 import { SHA3 } from 'crypto-js';
+import { EthAddress } from '../interfaces';
 
 /**
  * Regular expression to validate ETH address
  */
 const isEthAddress = new RegExp(/^0x[a-fA-F0-9]{40}$/g);
 
-function checkSumAddress(address: string): boolean {
+/**
+ * Helper function to check hash sum of eth address
+ * @param address
+ * @returns {boolean}
+ */
+function checkSumAddress(address: EthAddress): boolean {
   /**
    * Hash the lowercase hexadecimal string from Step-2 using Keccak 256 algorithm.
    * @param {string} value
@@ -61,7 +67,7 @@ function checkSumAddress(address: string): boolean {
  * TODO: Test for regular expression
  */
 
-function CheckAddress(address: string): boolean {
+function CheckAddress(address: EthAddress): boolean {
   if (isEthAddress.test(address)) {
     return true;
   } else if (checkSumAddress(address)) {
