@@ -9,3 +9,10 @@ import axios from 'axios';
 export const Request = (api: string, path?: string): Promise<any> => {
   return axios.get(api + path);
 };
+
+/**
+ *
+ */
+export const Queue = () => {
+  return null;
+};
