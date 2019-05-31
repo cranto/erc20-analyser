@@ -52,3 +52,25 @@ export function GetPriceToken(options: IPriceToken, key: string): Promise<any> {
 
   return responseData();
 }
+
+export function GetCurrentPriceToken(token: string, toCryptoCurrency: string, key: string) {
+  const responseData = async () => {
+    try {
+      const res = await Utils.Request(
+        `${CRYPTOCOMPARE_API}price?fsym=${token}&tsyms=${toCryptoCurrency}&api_key={${key}}`,
+      );
+
+      const dataInformation = await res;
+
+      if (dataInformation.data.Response === 'Error') {
+        return null;
+      }
+
+      return dataInformation.data[toCryptoCurrency];
+    } catch (error) {
+      Utils.ThrowError(error);
+    }
+  };
+
+  return responseData();
+}
