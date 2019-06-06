@@ -56,7 +56,7 @@ function checkSumAddress(address: EthAddress): boolean {
 /**
  * Ethereum addres validation
  * @param {string} address
- * @return {boolean}
+ * @returns {boolean}
  *
  * This is a clone of Web3 utility (isAddress)
  * But this way is better because size of bundle is smaller
@@ -68,13 +68,11 @@ function checkSumAddress(address: EthAddress): boolean {
  */
 
 function CheckAddress(address: EthAddress): boolean {
-  if (isEthAddress.test(address)) {
+  if (isEthAddress.test(address) || checkSumAddress(address)) {
     return true;
-  } else if (checkSumAddress(address)) {
-    return true;
-  } else {
-    return false;
   }
+
+  return false;
 }
 
 export default CheckAddress;
