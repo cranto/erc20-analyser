@@ -6,7 +6,7 @@ export {
   GetOutTransactions,
   GetResultErc20Transactions,
   SumTransactions,
-  GetCurrentToken
+  GetCurrentToken,
 } from './etherscan';
 export { GetPriceToken, GetCurrentPriceToken } from './cryptocompare';
 export { calculateROI } from './finance';
