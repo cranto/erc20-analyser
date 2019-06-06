@@ -10,7 +10,7 @@ export function calculateROI(data: IROIValues): number {
   /**
    * ROI = (Current value of investment - cost of investments) / cost of investment
    */
-  let result = ((data.cvoi - data.coi) / data.coi) * 100;
+  const result = ((data.cvoi - data.coi) / data.coi) * 100;
 
   return result;
 }
@@ -20,8 +20,8 @@ export function calculateROI(data: IROIValues): number {
  * Sharpe ratio is a way to examine the performance of an investment by adjusting for its risk.
  *
  * @param data
- * @returns {number}
+ * @returns {any}
  */
-export function calculateSharpeRatio(data: any): number {
+export function calculateSharpeRatio<T>(data: T): T {
   return data;
 }
