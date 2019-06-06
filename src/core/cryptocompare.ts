@@ -2,6 +2,14 @@ import { CRYPTOCOMPARE_API } from '../constants';
 import * as Utils from '../utils';
 import { IPriceToken } from '../interfaces';
 
+function checkCorrectRequest(res) {
+  if (res.data.Response === 'Error') {
+    return null;
+  } else {
+    return res.data;
+  }
+}
+
 /**
  * Function for get token price by date
  *
@@ -28,49 +36,29 @@ export function GetPriceToken(options: IPriceToken, key: string): Promise<any> {
     localTimestamp = Number(options.timestamp);
   }
 
-  /**
-   * TODO: Adding function for escape symbols for emoji's
-   */
+  const response = async () => {
+    const res = await Utils.WrapperRequest(
+      `${CRYPTOCOMPARE_API}pricehistorical?fsym=${startCurrency}&tsyms=${toCryptoCurrency}&ts=${localTimestamp}&api_key={${key}}`,
+    );
 
-  const responseData = async () => {
-    try {
-      const res = await Utils.Request(
-        `${CRYPTOCOMPARE_API}pricehistorical?fsym=${startCurrency}&tsyms=${toCryptoCurrency}&ts=${localTimestamp}&api_key={${key}}`,
-      );
+    const data = checkCorrectRequest(res);
 
-      const dataInformation = await res;
-
-      if (dataInformation.data.Response === 'Error') {
-        return null;
-      }
-
-      return dataInformation.data[startCurrency][toCryptoCurrency];
-    } catch (error) {
-      Utils.ThrowError(error);
-    }
+    return data[startCurrency][toCryptoCurrency];
   };
 
-  return responseData();
+  return response();
 }
 
 export function GetCurrentPriceToken(token: string, toCryptoCurrency: string, key: string) {
-  const responseData = async () => {
-    try {
-      const res = await Utils.Request(
-        `${CRYPTOCOMPARE_API}price?fsym=${token}&tsyms=${toCryptoCurrency}&api_key={${key}}`,
-      );
+  const response = async () => {
+    const res = await Utils.WrapperRequest(
+      `${CRYPTOCOMPARE_API}price?fsym=${token}&tsyms=${toCryptoCurrency}&api_key={${key}}`,
+    );
 
-      const dataInformation = await res;
+    const data = checkCorrectRequest(res);
 
-      if (dataInformation.data.Response === 'Error') {
-        return null;
-      }
-
-      return dataInformation.data[toCryptoCurrency];
-    } catch (error) {
-      Utils.ThrowError(error);
-    }
+    return data.data[toCryptoCurrency];
   };
 
-  return responseData();
+  return response();
 }

@@ -46,16 +46,25 @@ export class ERC20Analyser {
    * Function returns all incoming and outgoing transactions
    */
   public getResultErc20Transactions = (address: EthAddress) =>
-    Core.GetResultErc20Transactions(address, this._configuration.cryptocompareKey);
+    Core.GetResultErc20Transactions(address, this._configuration.etherscanKey);
 
   /**
    * TODO: all transactions
    */
   public sumTransactions = (arr: []) => Core.SumTransactions(arr);
 
+  public getCurrentPriceToken = (token: string, toCryptoCurrency: string) =>
+    Core.GetCurrentPriceToken(token, toCryptoCurrency, this._configuration.cryptocompareKey);
+
   /**
    * TODO: update logic of this function
    */
-  public getCurrentERC20TokenBalance = (address, contract) =>
+  public getCurrentERC20TokenBalance = (address: string, contract: string) =>
     Core.GetCurrentERC20TokenBalance(address, contract, this._configuration.etherscanKey);
+
+  /**
+   * Function to get all balance (with hold)
+   */
+  public getCurrentToken = (address: string) =>
+    Core.GetCurrentToken(address, this._configuration.etherscanKey, this._configuration.cryptocompareKey);
 }

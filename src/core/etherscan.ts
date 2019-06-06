@@ -1,7 +1,7 @@
 import asyncPool from 'tiny-async-pool';
-import { EthAddress } from '../interfaces';
+import { EthAddress, IEtherscanRequest } from '../interfaces';
 import CheckAddress from '../utils/check-address';
-import { GetPriceToken } from './cryptocompare';
+import { GetPriceToken, GetCurrentPriceToken } from './cryptocompare';
 import * as Utils from '../utils';
 import {
   ETHERSCAN_API,
@@ -13,24 +13,55 @@ import {
 } from '../constants';
 
 /**
- * Function to get current balance of token
- * @param contract
- * @param address
- * @param key
+ * Helper function to check correct answer from etherscan.io
+ * @param response object
+ * @returns object
  */
-export function GetCurrentERC20TokenBalance(contract: string, address: EthAddress, key: string) {
-  const tokenBalance = Utils.Request(
+function checkCorrectRequest(response: IEtherscanRequest): object {
+  if (response.data.status === '1' && response.data.message === 'OK') {
+    return response.data.result;
+  } else {
+    Utils.ThrowError(response.data.message);
+  }
+}
+
+/**
+ * Function to get current balance of token
+ * @param contract {string}
+ * @param address {string}
+ * @param key {string}
+ * @returns {Promise<number>}
+ */
+export function GetCurrentERC20TokenBalance(address: EthAddress, contract: string, key: string): Promise<number> {
+  const tokenBalanceReq = Utils.WrapperRequest(
     `${ETHERSCAN_API}${ETHERSCAN_API_ACCOUNT}${ETHERSCAN_API_TOKENBALANCE}${contract}${ETHERSCAN_API_ADDRESS}${address}&tag=latest&apiKey=${key}`,
+  );
+  const tokenDecimalReq = Utils.WrapperRequest(
+    `${ETHERSCAN_API}${ETHERSCAN_API_ACCOUNT}${ETHERSCAN_API_TXLIST}&contractaddress=${contract}&address=${address}&page=1&offset=100&sort=asc&apiKey=${key}`,
   );
 
   const request = async () => {
-    const response = await tokenBalance;
+    /**
+     * Get current balance of token
+     */
+    let responseBalance = checkCorrectRequest(await tokenBalanceReq);
 
-    if (response.data.status === '1' && response.data.message === 'OK') {
-      return Utils.Checkers.decNum(response.data.result, 18);
-    } else {
-      Utils.ThrowError(response.data.result);
-    }
+    /**
+     * Get token decimal information
+     */
+    let responseDecimal = checkCorrectRequest(await tokenDecimalReq);
+
+    /**
+     * Check type of response and return decimal information
+     */
+    let decimalAns = Array.isArray(responseDecimal)
+      ? responseDecimal[0]['tokenDecimal']
+      : responseDecimal['tokenDecimal'];
+
+    /**
+     * Return number of current token balance
+     */
+    return Utils.Checkers.decNum(Number(responseBalance), decimalAns);
   };
 
   return request();
@@ -43,26 +74,20 @@ export function GetCurrentERC20TokenBalance(contract: string, address: EthAddres
  */
 export function GetAllTransactions(address: EthAddress, key: string): any {
   if (CheckAddress(address)) {
-    const erc20List = Utils.Request(
+    const erc20List = Utils.WrapperRequest(
       `${ETHERSCAN_API}${ETHERSCAN_API_ACCOUNT}${ETHERSCAN_API_TXLIST}${ETHERSCAN_API_ADDRESS}${address}&startblock=0&endblock=99999999&sort=asc&apikey=${key}`,
     );
-
-    const responseData = async () => {
-      const data = await erc20List;
-
-      return data;
-    };
 
     let allTransactions = {
       In: [],
       Out: [],
     };
 
-    let makeTransaction = (element: {
-      timeStamp: any;
-      contractAddress: any;
-      tokenName: any;
-      tokenSymbol: any;
+    let formationTransactionObj = (element: {
+      timeStamp: string | number;
+      contractAddress: string;
+      tokenName: string;
+      tokenSymbol: string;
       value: number;
       tokenDecimal: number;
       gasPrice: number;
@@ -78,12 +103,12 @@ export function GetAllTransactions(address: EthAddress, key: string): any {
       };
     };
 
-    return responseData().then(res => {
+    return erc20List.then(res => {
       res.data.result.forEach((element: any) => {
-        if (element.to === address.toLowerCase()) {
-          allTransactions.In = [...allTransactions.In, makeTransaction(element)];
+        if (element.to.toLowerCase() === address.toLowerCase()) {
+          allTransactions.In = [...allTransactions.In, formationTransactionObj(element)];
         } else {
-          allTransactions.Out = [...allTransactions.Out, makeTransaction(element)];
+          allTransactions.Out = [...allTransactions.Out, formationTransactionObj(element)];
         }
       });
 
@@ -93,7 +118,7 @@ export function GetAllTransactions(address: EthAddress, key: string): any {
 }
 
 /**
- * Function to get current balance of ETH
+ * Function to get current balance of ETH by address
  * @param address
  */
 export function GetCurrentEthBalance(address: EthAddress, key: string): any {
@@ -109,7 +134,11 @@ export function GetCurrentEthBalance(address: EthAddress, key: string): any {
     };
 
     return responseData().then(response => {
-      return Utils.Checkers.decNum(response.data.result, 18);
+      if (response.data.status === '1' && response.data.message === 'OK') {
+        return Utils.Checkers.decNum(response.data.result, 18);
+      } else {
+        Utils.ThrowError(response.data.message);
+      }
     });
   }
 
@@ -122,7 +151,9 @@ export function GetCurrentEthBalance(address: EthAddress, key: string): any {
  * @param startData object
  * @param finalArray array
  */
-function templatePriceToken(startData: any, finalArray: any[], key: string) {
+function templatePriceToken(startData: any[], key: string) {
+  let localArr = [];
+
   const timeout = i =>
     new Promise(resolve =>
       setTimeout(
@@ -131,15 +162,12 @@ function templatePriceToken(startData: any, finalArray: any[], key: string) {
             GetPriceToken({ tokenSymbol: i.symbol, timestamp: i.date }, key)
               .then((item: number) => {
                 if (item !== null) {
-                  finalArray = [
-                    ...finalArray,
-                    {
-                      Name: i.name,
-                      Eth: item * i.value,
-                      Symbol: i.symbol,
-                      Date: i.date,
-                    },
-                  ];
+                  startData.map(e => {
+                    if (e.date === i.date && e.symbol === i.symbol) {
+                      e = { ...e, eth: item * i.value, withdraw: item * i.value - e.gasUsed };
+                      localArr = [...localArr, e];
+                    }
+                  });
                 }
               })
               .catch(err => {
@@ -154,7 +182,7 @@ function templatePriceToken(startData: any, finalArray: any[], key: string) {
    * To implement the concurrency behavior of promises
    */
   return asyncPool(2, startData, timeout).then(() => {
-    return finalArray;
+    return localArr;
   });
 }
 
@@ -164,13 +192,8 @@ function templatePriceToken(startData: any, finalArray: any[], key: string) {
  * @returns {Promise} Promise with object in transactions
  */
 export function GetInTransactions(address: EthAddress, key: string): Promise<any> {
-  const resultObject = {
-    title: 'In',
-    data: [],
-  };
-
   return GetAllTransactions(address, key).then((res: { In: any }) => {
-    return templatePriceToken(res.In, resultObject.data, key);
+    return templatePriceToken(res.In, key);
   });
 }
 
@@ -180,31 +203,79 @@ export function GetInTransactions(address: EthAddress, key: string): Promise<any
  * @returns {Promise} Promise with object out transactions
  */
 export function GetOutTransactions(address: EthAddress, key: string): Promise<any> {
-  const resultObject = {
-    title: 'Out',
-    data: [],
-  };
-
   return GetAllTransactions(address, key).then((res: { Out: any }) => {
-    return templatePriceToken(res.Out, resultObject.data, key);
+    return templatePriceToken(res.Out, key);
   });
 }
 
-export function GetResultErc20Transactions(address: EthAddress, key: string) {
-  const outSum = GetOutTransactions(address, key);
-  const inSum = GetInTransactions(address, key);
+/**
+ * Function to get result of token buy/sell
+ * @param address {string}
+ * @param etherscanKey {string}
+ * @returns {Promise}
+ */
+export async function GetResultErc20Transactions(address: EthAddress, etherscanKey: string): Promise<object> {
+  const outSum = GetOutTransactions(address, etherscanKey);
+  const inSum = GetInTransactions(address, etherscanKey);
 
-  return Promise.all([outSum, inSum]).then(result => {
-    let outTransactions = SumTransactions(result[0]);
-    let inTransactions = SumTransactions(result[1]);
+  const result = await Promise.all([outSum, inSum]);
 
-    let obj = {};
+  let outTransactions = SumTransactions(result[0]);
+  let inTransactions = SumTransactions(result[1]);
 
-    Object.keys(outTransactions).map(a => {
-      obj[a] = outTransactions[a] - inTransactions[a];
+  let obj = {};
+
+  for (let i = 0, transactions = [outTransactions, inTransactions]; i < transactions.length; i++) {
+    for (let key in transactions[i]) {
+      if (obj[key] === undefined) {
+        obj[key] = transactions[i][key];
+      } else {
+        obj[key] = {
+          ...obj[key],
+          withdraw: obj[key].withdraw - transactions[i][key].withdraw,
+        };
+      }
+    }
+  }
+
+  return obj;
+}
+
+/**
+ * Function to get current balance with hold
+ * @param address
+ * @param key
+ * @returns {Promise}
+ */
+export function GetCurrentToken(address: EthAddress, etherscanKey: string, cryptocompareKey: string): Promise<object> {
+  let final = {};
+
+  return GetResultErc20Transactions(address, etherscanKey).then(response => {
+    let test = Object.values(response);
+
+    const timeout = i =>
+      new Promise(resolve =>
+        setTimeout(
+          () =>
+            resolve(
+              GetCurrentERC20TokenBalance(address, i.contractAddress, etherscanKey).then(r => {
+                return GetCurrentPriceToken(i.symbol, 'ETH', cryptocompareKey).then(price => {
+                  if (price !== null && price !== undefined) {
+                    final = {
+                      ...final,
+                      [i.symbol]: i.withdraw + r * price,
+                    };
+                  }
+                });
+              }),
+            ),
+          i,
+        ),
+      );
+
+    return asyncPool(2, test, timeout).then(() => {
+      return final;
     });
-
-    return obj;
   });
 }
 
@@ -217,20 +288,22 @@ export function SumTransactions(arr: any[]) {
    */
   let resultObj = {};
 
-  /**
-   * TODO: Change function to sum only numeric values
-   */
   arr.reduce((acc: any, curr: any) => {
-    const key = curr.Symbol;
+    const key = curr.symbol;
 
     if (!resultObj[key]) {
       resultObj = {
         ...resultObj,
-        [key]: curr.Eth,
+        [key]: {
+          withdraw: curr.withdraw,
+          contractAddress: curr.contractAddress,
+          name: curr.name,
+          symbol: key,
+        },
       };
       acc.push(resultObj);
     } else {
-      resultObj[key] += curr.Eth;
+      resultObj[key].withdraw += curr.withdraw;
     }
 
     return acc;
