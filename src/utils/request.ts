@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { ThrowError } from './';
 
 /**
  *
@@ -8,6 +9,20 @@ import axios from 'axios';
  */
 export const Request = (api: string, path?: string): Promise<any> => {
   return axios.get(api + path);
+};
+
+export const WrapperRequest = (url: string) => {
+  const response = async () => {
+    try {
+      const data = await Request(url);
+
+      return data;
+    } catch (error) {
+      ThrowError(error);
+    }
+  };
+
+  return response();
 };
 
 /**
