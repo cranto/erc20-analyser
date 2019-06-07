@@ -34,6 +34,13 @@ const etherscanToken = 'your-etherscan-api-token';
 const analyser = new ERC20Analyser(cryptocompareToken, etherscanToken);
 ```
 
+### Get current portfolio of ERC20-Token transactions with current hold
+```typescript
+analyser.getERC20TokenBalanceWithHold('0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B').then(data => {
+  console.log(data);
+});
+```
+
 ### Get Ethereum balance by ETH address
 ```typescript
 analyser.getCurrentEthBalance('0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B').then(data => {
@@ -62,9 +69,17 @@ analyser.getPriceToken({tokenSymbol: 'WAVES', timestamp: 1546300800, toConvert: 
 });
 ```
 
-### Get all incoming and outgoing ERC20-Token transactions
+### Get ERC20-Token price by current date
 ```typescript
-analyser.getResultErc20Transactions('0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B').then(data => {
+analyser.getCurrentPriceToken('BNB', 'ETH').then(data => {
+  console.log(data);
+});
+```
+
+
+### Get current token balance by contract address
+```typescript
+analyser.getResultErc20Transactions('0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B', '0xe25b0bba01dc5630312b6a21927e578061a13f55').then(data => {
   console.log(data);
 });
 ```
