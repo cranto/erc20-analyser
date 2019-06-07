@@ -21,7 +21,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/loeildes/erc20-analyser.git"
+    "url": "git+https://github.com/shevchenkonik/erc20-analyser.git"
   },
   "author": "Nik Shevchenko",
   "keywords": [
@@ -29,9 +29,9 @@
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/loeildes/erc20-analyser/issues"
+    "url": "https://github.com/shevchenkonik/erc20-analyser/issues"
   },
-  "homepage": "https://github.com/loeildes/erc20-analyser#readme",
+  "homepage": "https://github.com/shevchenkonik/erc20-analyser#readme",
   "devDependencies": {
     "@babel/core": "^7.4.0",
     "@babel/preset-env": "^7.4.2",
