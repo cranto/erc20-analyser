@@ -43,21 +43,24 @@ export class ERC20Analyser {
   public getPriceToken = (obj: IPriceToken) => Core.GetPriceToken(obj, this._configuration.cryptocompareKey);
 
   /**
-   * Function returns all incoming and outgoing transactions
+   * Function return sum of incoming and outcoming transactions
+   * But function does not take into account the current hold
    */
-  public getResultErc20Transactions = (address: EthAddress) =>
+  public getResultERC20Transactions = (address: EthAddress) =>
     Core.GetResultErc20Transactions(address, this._configuration.etherscanKey);
 
   /**
-   * TODO: all transactions
+   * Function to get current price token
+   * Example:
+   * ERC20Analyser.getCurrentPriceToken('BNB', 'ETH').then(response => {
+   *  console.log(response); // return number
+   * })
    */
-  public sumTransactions = (arr: []) => Core.SumTransactions(arr);
-
-  public getCurrentPriceToken = (token: string, toCryptoCurrency: string) =>
-    Core.GetCurrentPriceToken(token, toCryptoCurrency, this._configuration.cryptocompareKey);
+  public getCurrentPriceToken = (tokenName: string, toCryptoCurrency: string) =>
+    Core.GetCurrentPriceToken(tokenName, toCryptoCurrency, this._configuration.cryptocompareKey);
 
   /**
-   * TODO: update logic of this function
+   * Function to get current token balance by contract address
    */
   public getCurrentERC20TokenBalance = (address: string, contract: string) =>
     Core.GetCurrentERC20TokenBalance(address, contract, this._configuration.etherscanKey);
@@ -65,6 +68,6 @@ export class ERC20Analyser {
   /**
    * Function to get all balance (with hold)
    */
-  public getCurrentToken = (address: string) =>
-    Core.GetCurrentToken(address, this._configuration.etherscanKey, this._configuration.cryptocompareKey);
+  public getERC20TokenBalanceWithHold = (address: string) =>
+    Core.GetERC20TokenBalanceWithHold(address, this._configuration.etherscanKey, this._configuration.cryptocompareKey);
 }

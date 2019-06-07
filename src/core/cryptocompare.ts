@@ -23,27 +23,22 @@ export function GetPriceToken(options: IPriceToken, key: string): Promise<any> {
   const toCryptoCurrency = options.toConvert ? options.toConvert.toUpperCase() : 'ETH';
   const startCurrency = options.tokenSymbol.toUpperCase();
 
-  /**
-   * If you post incorrect timestamp with letters,
-   * function will remove letter and return value
-   * before first letter
-   *
-   * For example:
-   * 1. 1555505512a -> 1555505512
-   * 2. 15a55505512 -> 15
-   */
   if (typeof options.timestamp === 'string') {
     localTimestamp = Number(options.timestamp);
   }
 
   const response = async () => {
-    const res = await Utils.WrapperRequest(
-      `${CRYPTOCOMPARE_API}pricehistorical?fsym=${startCurrency}&tsyms=${toCryptoCurrency}&ts=${localTimestamp}&api_key={${key}}`,
-    );
+    try {
+      const res = await Utils.WrapperRequest(
+        `${CRYPTOCOMPARE_API}pricehistorical?fsym=${startCurrency}&tsyms=${toCryptoCurrency}&ts=${localTimestamp}&api_key={${key}}`,
+      );
 
-    const data = checkCorrectRequest(res);
+      const data = checkCorrectRequest(res);
 
-    return data[startCurrency][toCryptoCurrency];
+      return data[startCurrency][toCryptoCurrency];
+    } catch (error) {
+      Utils.ThrowError(error);
+    }
   };
 
   return response();
@@ -51,13 +46,17 @@ export function GetPriceToken(options: IPriceToken, key: string): Promise<any> {
 
 export function GetCurrentPriceToken(token: string, toCryptoCurrency: string, key: string) {
   const response = async () => {
-    const res = await Utils.WrapperRequest(
-      `${CRYPTOCOMPARE_API}price?fsym=${token}&tsyms=${toCryptoCurrency}&api_key={${key}}`,
-    );
+    try {
+      const res = await Utils.WrapperRequest(
+        `${CRYPTOCOMPARE_API}price?fsym=${token}&tsyms=${toCryptoCurrency}&api_key={${key}}`,
+      );
 
-    const data = checkCorrectRequest(res);
+      const data = checkCorrectRequest(res);
 
-    return data.data[toCryptoCurrency];
+      return data[toCryptoCurrency];
+    } catch (error) {
+      Utils.ThrowError(error);
+    }
   };
 
   return response();

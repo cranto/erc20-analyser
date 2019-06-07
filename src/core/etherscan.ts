@@ -14,8 +14,8 @@ import {
 
 /**
  * Helper function to check correct answer from etherscan.io
- * @param response object
- * @returns object
+ * @param response {object}
+ * @returns {object}
  */
 function checkCorrectRequest(response: IEtherscanRequest): object {
   if (response.data.status === '1' && response.data.message === 'OK') {
@@ -191,7 +191,7 @@ function templatePriceToken(startData: any[], key: string) {
  * @param address string
  * @returns {Promise} Promise with object in transactions
  */
-export function GetInTransactions(address: EthAddress, key: string): Promise<any> {
+export async function GetInTransactions(address: EthAddress, key: string): Promise<any> {
   return GetAllTransactions(address, key).then((res: { In: any }) => {
     return templatePriceToken(res.In, key);
   });
@@ -202,7 +202,7 @@ export function GetInTransactions(address: EthAddress, key: string): Promise<any
  * @param address string
  * @returns {Promise} Promise with object out transactions
  */
-export function GetOutTransactions(address: EthAddress, key: string): Promise<any> {
+export async function GetOutTransactions(address: EthAddress, key: string): Promise<any> {
   return GetAllTransactions(address, key).then((res: { Out: any }) => {
     return templatePriceToken(res.Out, key);
   });
@@ -247,7 +247,11 @@ export async function GetResultErc20Transactions(address: EthAddress, etherscanK
  * @param key
  * @returns {Promise}
  */
-export function GetCurrentToken(address: EthAddress, etherscanKey: string, cryptocompareKey: string): Promise<object> {
+export async function GetERC20TokenBalanceWithHold(
+  address: EthAddress,
+  etherscanKey: string,
+  cryptocompareKey: string,
+): Promise<object> {
   let final = {};
 
   return GetResultErc20Transactions(address, etherscanKey).then(response => {
