@@ -1,7 +1,5 @@
-import asyncPool from 'tiny-async-pool';
 import { EthAddress, IEtherscanRequest } from '../interfaces';
 import CheckAddress from '../utils/check-address';
-import { GetPriceToken, GetCurrentPriceToken } from './cryptocompare';
 import * as Utils from '../utils';
 import {
   ETHERSCAN_API,
@@ -44,19 +42,21 @@ export function GetCurrentERC20TokenBalance(address: EthAddress, contract: strin
     /**
      * Get current balance of token
      */
-    let responseBalance = checkCorrectRequest(await tokenBalanceReq);
+    const responseBalance = checkCorrectRequest(await tokenBalanceReq);
 
     /**
      * Get token decimal information
      */
-    let responseDecimal = checkCorrectRequest(await tokenDecimalReq);
+    const responseDecimal = checkCorrectRequest(await tokenDecimalReq);
+
+    const tokenDecimal = 'tokenDecimal';
 
     /**
      * Check type of response and return decimal information
      */
-    let decimalAns = Array.isArray(responseDecimal)
-      ? responseDecimal[0]['tokenDecimal']
-      : responseDecimal['tokenDecimal'];
+    const decimalAns = Array.isArray(responseDecimal)
+      ? responseDecimal[0][tokenDecimal]
+      : responseDecimal[tokenDecimal];
 
     /**
      * Return number of current token balance
@@ -78,12 +78,12 @@ export function GetAllTransactions(address: EthAddress, key: string): any {
       `${ETHERSCAN_API}${ETHERSCAN_API_ACCOUNT}${ETHERSCAN_API_TXLIST}${ETHERSCAN_API_ADDRESS}${address}&startblock=0&endblock=99999999&sort=asc&apikey=${key}`,
     );
 
-    let allTransactions = {
+    const allTransactions = {
       In: [],
       Out: [],
     };
 
-    let formationTransactionObj = (element: {
+    const formationTransactionObj = (element: {
       timeStamp: string | number;
       contractAddress: string;
       tokenName: string;
@@ -143,175 +143,4 @@ export function GetCurrentEthBalance(address: EthAddress, key: string): any {
   }
 
   Utils.ThrowError('Not connect with etherscan.io');
-}
-
-/**
- * Template for balancing promises
- * 2 async requests
- * @param startData object
- * @param finalArray array
- */
-function templatePriceToken(startData: any[], key: string) {
-  let localArr = [];
-
-  const timeout = i =>
-    new Promise(resolve =>
-      setTimeout(
-        () =>
-          resolve(
-            GetPriceToken({ tokenSymbol: i.symbol, timestamp: i.date }, key)
-              .then((item: number) => {
-                if (item !== null) {
-                  startData.map(e => {
-                    if (e.date === i.date && e.symbol === i.symbol) {
-                      e = { ...e, eth: item * i.value, withdraw: item * i.value - e.gasUsed };
-                      localArr = [...localArr, e];
-                    }
-                  });
-                }
-              })
-              .catch(err => {
-                return err;
-              }),
-          ),
-        i,
-      ),
-    );
-
-  /**
-   * To implement the concurrency behavior of promises
-   */
-  return asyncPool(2, startData, timeout).then(() => {
-    return localArr;
-  });
-}
-
-/**
- * Get In Transactions by address
- * @param address string
- * @returns {Promise} Promise with object in transactions
- */
-export async function GetInTransactions(address: EthAddress, key: string): Promise<any> {
-  return GetAllTransactions(address, key).then((res: { In: any }) => {
-    return templatePriceToken(res.In, key);
-  });
-}
-
-/**
- * Get Out Transactions by address
- * @param address string
- * @returns {Promise} Promise with object out transactions
- */
-export async function GetOutTransactions(address: EthAddress, key: string): Promise<any> {
-  return GetAllTransactions(address, key).then((res: { Out: any }) => {
-    return templatePriceToken(res.Out, key);
-  });
-}
-
-/**
- * Function to get result of token buy/sell
- * @param address {string}
- * @param etherscanKey {string}
- * @returns {Promise}
- */
-export async function GetResultErc20Transactions(address: EthAddress, etherscanKey: string): Promise<object> {
-  const outSum = GetOutTransactions(address, etherscanKey);
-  const inSum = GetInTransactions(address, etherscanKey);
-
-  const result = await Promise.all([outSum, inSum]);
-
-  let outTransactions = SumTransactions(result[0]);
-  let inTransactions = SumTransactions(result[1]);
-
-  let obj = {};
-
-  for (let i = 0, transactions = [outTransactions, inTransactions]; i < transactions.length; i++) {
-    for (let key in transactions[i]) {
-      if (obj[key] === undefined) {
-        obj[key] = transactions[i][key];
-      } else {
-        obj[key] = {
-          ...obj[key],
-          withdraw: obj[key].withdraw - transactions[i][key].withdraw,
-        };
-      }
-    }
-  }
-
-  return obj;
-}
-
-/**
- * Function to get current balance with hold
- * @param address
- * @param key
- * @returns {Promise}
- */
-export async function GetERC20TokenBalanceWithHold(
-  address: EthAddress,
-  etherscanKey: string,
-  cryptocompareKey: string,
-): Promise<object> {
-  let final = {};
-
-  return GetResultErc20Transactions(address, etherscanKey).then(response => {
-    let test = Object.values(response);
-
-    const timeout = i =>
-      new Promise(resolve =>
-        setTimeout(
-          () =>
-            resolve(
-              GetCurrentERC20TokenBalance(address, i.contractAddress, etherscanKey).then(r => {
-                return GetCurrentPriceToken(i.symbol, 'ETH', cryptocompareKey).then(price => {
-                  if (price !== null && price !== undefined) {
-                    final = {
-                      ...final,
-                      [i.symbol]: i.withdraw + r * price,
-                    };
-                  }
-                });
-              }),
-            ),
-          i,
-        ),
-      );
-
-    return asyncPool(2, test, timeout).then(() => {
-      return final;
-    });
-  });
-}
-
-/**
- * Function to sum identical tokens
- */
-export function SumTransactions(arr: any[]) {
-  /**
-   * Final object
-   */
-  let resultObj = {};
-
-  arr.reduce((acc: any, curr: any) => {
-    const key = curr.symbol;
-
-    if (!resultObj[key]) {
-      resultObj = {
-        ...resultObj,
-        [key]: {
-          withdraw: curr.withdraw,
-          contractAddress: curr.contractAddress,
-          name: curr.name,
-          symbol: key,
-        },
-      };
-      acc.push(resultObj);
-    } else {
-      resultObj[key].withdraw += curr.withdraw;
-    }
-
-    return acc;
-  }, []);
-
-  return resultObj;
 }
