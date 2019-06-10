@@ -26,7 +26,7 @@ npm i erc20-analyser
 
 ### Initialization
 ```typescript
-import * as ERC20Analyser from 'erc20-analyser';
+import { ERC20Analyser } from 'erc20-analyser';
 
 const cryptocompareToken = 'your-cryptocompare-api-token';
 const etherscanToken = 'your-etherscan-api-token';
