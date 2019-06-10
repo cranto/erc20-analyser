@@ -35,7 +35,9 @@ export function GetPriceToken(options: IPriceToken, key: string): Promise<any> {
 
       const data = checkCorrectRequest(res);
 
-      return data[startCurrency][toCryptoCurrency];
+      if (data !== null) {
+        return data[startCurrency][toCryptoCurrency];
+      }
     } catch (error) {
       Utils.ThrowError(error);
     }
@@ -53,7 +55,10 @@ export function GetCurrentPriceToken(token: string, toCryptoCurrency: string, ke
 
       const data = checkCorrectRequest(res);
 
-      return data[toCryptoCurrency];
+      if (data !== null) {
+        return data[toCryptoCurrency];
+      }
+
     } catch (error) {
       Utils.ThrowError(error);
     }
