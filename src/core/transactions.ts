@@ -2,7 +2,7 @@
  * TODO:
  * Replace this package or make queue promises
  */
-let asyncPool = require('tiny-async-pool');
+import asyncPool = require('tiny-async-pool');
 
 import { GetCurrentPriceToken, GetAllTransactions, GetCurrentERC20TokenBalance, GetPriceToken } from './index';
 import { EthAddress } from '../interfaces';
