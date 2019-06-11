@@ -1,10 +1,15 @@
-import asyncPool from 'tiny-async-pool';
+/**
+ * TODO:
+ * Replace this package or make queue promises
+ */
+let asyncPool = require('tiny-async-pool');
+
 import { GetCurrentPriceToken, GetAllTransactions, GetCurrentERC20TokenBalance, GetPriceToken } from './index';
 import { EthAddress } from '../interfaces';
 
 /**
  * Function to get amount of all transactions
- * @param arr
+ * @param arr Array with transactions
  */
 export function GetAmount(arr: any[]): object {
   let result = {};
