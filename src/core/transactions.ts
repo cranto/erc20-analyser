@@ -1,9 +1,3 @@
-/**
- * TODO:
- * Replace this package or make queue promises
- */
-import asyncPool = require('tiny-async-pool');
-
 import { GetCurrentPriceToken, GetAllTransactions, GetCurrentERC20TokenBalance, GetPriceToken } from './index';
 import { EthAddress } from '../interfaces';
 
@@ -38,6 +32,35 @@ export function GetAmount(arr: any[]): object {
   return result;
 }
 
+function promiseQueue(startData, fn, delayInMS) {
+  /**
+   *
+   * @param time
+   */
+  const delay = time => new Promise(resolve => setTimeout(resolve, time));
+
+  const delayedMap = async (array, callback, delayTime) => {
+    let promises = [];
+
+    for (const item of array) {
+      await delay(delayTime);
+      promises.push(await callback(item));
+    }
+
+    return Promise.all(promises);
+  };
+
+  const toList = async value => {
+    let data = await fn(value);
+
+    return data;
+  };
+
+  const delayTime = delayInMS;
+
+  return delayedMap(startData, toList, delayTime);
+}
+
 /**
  * Template for balancing promises
  * 2 async requests
@@ -45,38 +68,19 @@ export function GetAmount(arr: any[]): object {
  * @param finalArray array
  */
 function templatePriceToken(startData: any[], key: string) {
-  let localArr = [];
+  let tokenInfo = value => {
+    return GetPriceToken({ tokenSymbol: value['symbol'], timestamp: value['date'] }, key).then(item => {
+      if (item !== null) {
+        return {
+          ...value,
+          eth: item * value['value'],
+          withdraw: item * value['value'] - value['gasUsed'],
+        };
+      }
+    });
+  };
 
-  const timeout = i =>
-    new Promise(resolve =>
-      setTimeout(
-        () =>
-          resolve(
-            GetPriceToken({ tokenSymbol: i.symbol, timestamp: i.date }, key)
-              .then((item: number) => {
-                if (item !== null) {
-                  startData.map(e => {
-                    if (e.date === i.date && e.symbol === i.symbol) {
-                      e = { ...e, eth: item * i.value, withdraw: item * i.value - e.gasUsed };
-                      localArr = [...localArr, e];
-                    }
-                  });
-                }
-              })
-              .catch(err => {
-                return err;
-              }),
-          ),
-        i,
-      ),
-    );
-
-  /**
-   * To implement the concurrency behavior of promises
-   */
-  return asyncPool(2, startData, timeout).then(() => {
-    return localArr;
-  });
+  return promiseQueue(startData, tokenInfo, 500);
 }
 
 /**
@@ -95,7 +99,7 @@ export async function GetOutTransactions(address: EthAddress, key: string): Prom
  * @param address string
  * @returns {Promise} Promise with object in transactions
  */
-export async function GetInTransactions(address: EthAddress, key: string): Promise<any> {
+export function GetInTransactions(address: EthAddress, key: string): Promise<any> {
   return GetAllTransactions(address, key).then((res: { In: any }) => {
     return templatePriceToken(res.In, key);
   });
@@ -145,33 +149,21 @@ export async function GetERC20TokenBalanceWithHold(
   etherscanKey: string,
   cryptocompareKey: string,
 ): Promise<object> {
-  let final = {};
-
   return GetResultErc20Transactions(address, etherscanKey).then(response => {
     const responseObj = Object.values(response);
 
-    const timeout = i =>
-      new Promise(resolve =>
-        setTimeout(
-          () =>
-            resolve(
-              GetCurrentERC20TokenBalance(address, i.contractAddress, etherscanKey).then(r => {
-                return GetCurrentPriceToken(i.symbol, 'ETH', cryptocompareKey).then(price => {
-                  if (price !== null && price !== undefined) {
-                    final = {
-                      ...final,
-                      [i.symbol]: i.withdraw + r * price,
-                    };
-                  }
-                });
-              }),
-            ),
-          i,
-        ),
-      );
+    let tokenCurrent = i => {
+      return GetCurrentERC20TokenBalance(address, i.contractAddress, etherscanKey).then(r => {
+        return GetCurrentPriceToken(i.symbol, 'ETH', cryptocompareKey).then(price => {
+          if (price !== null && price !== undefined) {
+            return {
+              [i.symbol]: i.withdraw + r * price,
+            };
+          }
+        });
+      });
+    };
 
-    return asyncPool(2, responseObj, timeout).then(() => {
-      return final;
-    });
+    return promiseQueue(responseObj, tokenCurrent, 500);
   });
 }
