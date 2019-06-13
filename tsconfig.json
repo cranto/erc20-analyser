@@ -6,7 +6,8 @@
     "module": "commonjs",
     "removeComments": false,
     "sourceMap": true,
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "esModuleInterop": true
   },
   "include": [
     "src/**/*"

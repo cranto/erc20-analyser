@@ -58,7 +58,6 @@ export function GetCurrentPriceToken(token: string, toCryptoCurrency: string, ke
       if (data !== null) {
         return data[toCryptoCurrency];
       }
-
     } catch (error) {
       Utils.ThrowError(error);
     }
