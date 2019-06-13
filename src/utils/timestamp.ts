@@ -37,6 +37,11 @@ export function ToUnix(value: string): number {
   ThrowError("Transformation from ISO-8601 to UNIX isn't correct.");
 }
 
+/**
+ * Helper function to convert UNIX time to UTC time
+ * @param value UNIX Timestamp
+ * @returns UTC Time
+ */
 export function ToDate(value: number): any {
   return new Date(value * 1000).toUTCString();
 }
