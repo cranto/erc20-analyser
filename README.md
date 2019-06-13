@@ -1,6 +1,6 @@
 # Module to analyse ERC20-Token balance of address
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/shevchenkonik/erc20-analyser/blob/master/LICENSE) ![GitHub issues](https://img.shields.io/github/issues-raw/shevchenkonik/erc20-analyser.svg) ![npm](https://img.shields.io/npm/dy/erc20-analyser.svg)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/shevchenkonik/erc20-analyser/blob/master/LICENSE) ![GitHub issues](https://img.shields.io/github/issues-raw/shevchenkonik/erc20-analyser.svg) ![npm](https://img.shields.io/npm/dy/erc20-analyser.svg) ![GitHub pull requests](https://img.shields.io/github/issues-pr/shevchenkonik/erc20-analyser.svg)
 
 # What is ERC20-Analyser?
 
