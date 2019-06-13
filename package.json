@@ -1,6 +1,6 @@
 {
   "name": "erc20-analyser",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Module to analyse ERC-20 Token balance of address",
   "main": "./dist/index.js",
   "size-limit": [
