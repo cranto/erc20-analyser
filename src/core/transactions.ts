@@ -1,5 +1,6 @@
 import { GetCurrentPriceToken, GetAllTransactions, GetCurrentERC20TokenBalance, GetPriceToken } from './index';
 import { EthAddress } from '../interfaces';
+import { PromiseQueue } from '../utils';
 
 /**
  * Function to get amount of all transactions
@@ -32,35 +33,6 @@ export function GetAmount(arr: any[]): object {
   return result;
 }
 
-function promiseQueue(startData, fn, delayInMS) {
-  /**
-   *
-   * @param time
-   */
-  const delay = time => new Promise(resolve => setTimeout(resolve, time));
-
-  const delayedMap = async (array, callback, delayTime) => {
-    let promises = [];
-
-    for (const item of array) {
-      await delay(delayTime);
-      promises.push(await callback(item));
-    }
-
-    return Promise.all(promises);
-  };
-
-  const toList = async value => {
-    let data = await fn(value);
-
-    return data;
-  };
-
-  const delayTime = delayInMS;
-
-  return delayedMap(startData, toList, delayTime);
-}
-
 /**
  * Template for balancing promises
  * 2 async requests
@@ -80,7 +52,7 @@ function templatePriceToken(startData: any[], key: string) {
     });
   };
 
-  return promiseQueue(startData, tokenInfo, 500);
+  return PromiseQueue(startData, tokenInfo, 500);
 }
 
 /**
@@ -164,6 +136,6 @@ export async function GetERC20TokenBalanceWithHold(
       });
     };
 
-    return promiseQueue(responseObj, tokenCurrent, 500);
+    return PromiseQueue(responseObj, tokenCurrent, 500);
   });
 }
