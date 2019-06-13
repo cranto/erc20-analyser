@@ -1,4 +1,4 @@
-import { SHA3 } from 'crypto-js';
+import SHA3 from 'crypto-js/sha3';
 import { EthAddress } from '../interfaces';
 
 /**
