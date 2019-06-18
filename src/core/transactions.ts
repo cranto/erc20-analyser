@@ -1,6 +1,6 @@
 import { GetCurrentPriceToken, GetAllTransactions, GetCurrentERC20TokenBalance, GetPriceToken } from './index';
 import { EthAddress } from '../interfaces';
-import { PromiseQueue } from '../utils';
+import { PromiseQueue, ThrowError } from '../utils';
 
 /**
  * Function to get amount of all transactions
@@ -10,6 +10,10 @@ export function GetAmount(arr: any[]): object {
   let result = {};
 
   arr.reduce((acc: any, curr: any) => {
+    if (curr === undefined) {
+      return acc;
+    }
+
     const key = curr.symbol;
 
     if (!result[key]) {
@@ -41,12 +45,12 @@ export function GetAmount(arr: any[]): object {
  */
 function templatePriceToken(startData: any[], key: string) {
   let tokenInfo = value => {
-    return GetPriceToken({ tokenSymbol: value['symbol'], timestamp: value['date'] }, key).then(item => {
-      if (item !== null) {
+    return GetPriceToken({ tokenSymbol: value.symbol, timestamp: value.date }, key).then(item => {
+      if (item !== null && item !== undefined) {
         return {
           ...value,
-          eth: item * value['value'],
-          withdraw: item * value['value'] - value['gasUsed'],
+          eth: item * value.value,
+          withdraw: item * value.value - value.gasUsed,
         };
       }
     });
@@ -61,9 +65,8 @@ function templatePriceToken(startData: any[], key: string) {
  * @returns {Promise} Promise with object out transactions
  */
 export async function GetOutTransactions(address: EthAddress, key: string): Promise<any> {
-  return GetAllTransactions(address, key).then((res: { Out: any }) => {
-    return templatePriceToken(res.Out, key);
-  });
+  const res = await GetAllTransactions(address, key);
+  return templatePriceToken(res.Out, key);
 }
 
 /**
@@ -71,10 +74,9 @@ export async function GetOutTransactions(address: EthAddress, key: string): Prom
  * @param address string
  * @returns {Promise} Promise with object in transactions
  */
-export function GetInTransactions(address: EthAddress, key: string): Promise<any> {
-  return GetAllTransactions(address, key).then((res: { In: any }) => {
-    return templatePriceToken(res.In, key);
-  });
+export async function GetInTransactions(address: EthAddress, key: string): Promise<any> {
+  const res = await GetAllTransactions(address, key);
+  return templatePriceToken(res.In, key);
 }
 
 /**
@@ -84,30 +86,40 @@ export function GetInTransactions(address: EthAddress, key: string): Promise<any
  * @returns {Promise}
  */
 export async function GetResultErc20Transactions(address: EthAddress, etherscanKey: string): Promise<object> {
-  const outSum = GetOutTransactions(address, etherscanKey);
-  const inSum = GetInTransactions(address, etherscanKey);
+  return GetAllTransactions(address, etherscanKey).then(r => {
+    const inSum = templatePriceToken(r.In, etherscanKey);
+    const outSum = templatePriceToken(r.Out, etherscanKey);
 
-  const result = await Promise.all([outSum, inSum]);
+    const objResult = async () => {
+      try {
+        const result = await Promise.all([outSum, inSum]);
 
-  const outTransactions = GetAmount(result[0]);
-  const inTransactions = GetAmount(result[1]);
+        const outTransactions = GetAmount(result[0]);
+        const inTransactions = GetAmount(result[1]);
 
-  const obj = {};
+        const obj = {};
 
-  for (let i = 0, transactions = [outTransactions, inTransactions]; i < transactions.length; i++) {
-    for (const key in transactions[i]) {
-      if (obj[key] === undefined) {
-        obj[key] = transactions[i][key];
-      } else {
-        obj[key] = {
-          ...obj[key],
-          withdraw: obj[key].withdraw - transactions[i][key].withdraw,
-        };
+        for (let i = 0, transactions = [outTransactions, inTransactions]; i < transactions.length; i++) {
+          for (const key in transactions[i]) {
+            if (obj[key] === undefined) {
+              obj[key] = transactions[i][key];
+            } else {
+              obj[key] = {
+                ...obj[key],
+                withdraw: obj[key].withdraw - transactions[i][key].withdraw,
+              };
+            }
+          }
+        }
+
+        return obj;
+      } catch (err) {
+        ThrowError(err);
       }
-    }
-  }
+    };
 
-  return obj;
+    return objResult();
+  });
 }
 
 /**

@@ -1,6 +1,6 @@
 export { GetCurrentERC20TokenBalance, GetAllTransactions, GetCurrentEthBalance } from './etherscan';
 export { GetPriceToken, GetCurrentPriceToken } from './cryptocompare';
-export { calculateROI } from './finance';
+export { GetROI } from './finance';
 export {
   GetInTransactions,
   GetOutTransactions,
