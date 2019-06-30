@@ -15,8 +15,10 @@ function calculateROI(data: IROIValues): number {
   return result;
 }
 
-export function GetROI(address: EthAddress): number {
-  return 123;
+export function GetROI(data: IROIValues): number {
+  const result = ((data.cvoi - data.coi) / data.coi) * 100;
+
+  return result;
 }
 
 /**
