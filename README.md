@@ -42,7 +42,7 @@ analyser.getERC20TokenBalanceWithHold('0xAb5801a7D398351b8bE11C439e05C5B3259aeC9
 
 ### Get Ethereum balance by ETH address
 ```typescript
-analyser.getCurrentEthBalance('0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B').then(data => {
+analyser.getCurrentETHBalance('0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B').then(data => {
   console.log(data);
 });
 ```

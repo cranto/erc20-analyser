@@ -118,31 +118,3 @@ export async function GetAllTransactions(address: EthAddress, key: string): Prom
     }
   }
 }
-
-/**
- * Function to get current balance of ETH by address
- * @param address
- */
-export function GetCurrentEthBalance(address: EthAddress, key: string): any {
-  if (CheckAddress(address)) {
-    const res = Utils.Request(
-      `${ETHERSCAN_API}${ETHERSCAN_API_ACCOUNT}${ETHERSCAN_API_BALANCE}${ETHERSCAN_API_ADDRESS}${address}&tag=latest&apikey=${key}`,
-    );
-
-    const responseData = async () => {
-      const dataInfo = await res;
-
-      return dataInfo;
-    };
-
-    return responseData().then(response => {
-      if (response.data.status === '1' && response.data.message === 'OK') {
-        return Utils.Checkers.decNum(response.data.result, 18);
-      } else {
-        Utils.ThrowError(response.data.message);
-      }
-    });
-  }
-
-  Utils.ThrowError('Not connect with etherscan.io');
-}

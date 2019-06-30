@@ -3,6 +3,7 @@ import { EthAddress, IPriceToken } from './interfaces';
 import * as Utils from './utils';
 
 export class ERC20Analyser {
+  // tslint:disable-next-line: variable-name
   protected _configuration: Utils.Configuration;
 
   public constructor(cryptocompareKey: string, etherscanKey: string) {
@@ -10,16 +11,15 @@ export class ERC20Analyser {
   }
 
   /**
+   * Function to get current balance of ETH
+   */
+  public getCurrentETHBalance = (address: string) => Core.GetCurrentETHBalance(address, this._configuration.web3);
+
+  /**
    * Function to get all transactions of ERC-20 tokens by address
    */
   public getAllTransactions = (address: EthAddress) =>
     Core.GetAllTransactions(address, this._configuration.etherscanKey);
-
-  /**
-   * Function to get current balance of ETH
-   */
-  public getCurrentEthBalance = (address: EthAddress) =>
-    Core.GetCurrentEthBalance(address, this._configuration.etherscanKey);
 
   /**
    * Function to get outgoing transactions by address
@@ -70,4 +70,6 @@ export class ERC20Analyser {
    */
   public getERC20TokenBalanceWithHold = (address: string) =>
     Core.GetERC20TokenBalanceWithHold(address, this._configuration.etherscanKey, this._configuration.cryptocompareKey);
+
+  public calculateROI = (cvoi, coi) => Core.GetROI({ cvoi, coi });
 }
