@@ -54,4 +54,4 @@ export const decNum = (numero: number, decimal: number): number => {
  */
 export const parseToJSON = (value: string | undefined): object | undefined => {
   return isString(value) ? JSON.parse(value) : undefined;
-}
+};
