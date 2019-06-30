@@ -6,8 +6,8 @@ export class ERC20Analyser {
   // tslint:disable-next-line: variable-name
   protected _configuration: Utils.Configuration;
 
-  public constructor(cryptocompareKey: string, etherscanKey: string) {
-    this._configuration = new Utils.Configuration(cryptocompareKey, etherscanKey);
+  public constructor(cryptocompareKey: string, etherscanKey: string, web3Provider: string) {
+    this._configuration = new Utils.Configuration(cryptocompareKey, etherscanKey, web3Provider);
   }
 
   /**
