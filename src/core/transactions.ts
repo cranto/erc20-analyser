@@ -44,16 +44,21 @@ export function GetAmount(arr: any[]): object {
  * @param finalArray array
  */
 function templatePriceToken(startData: any[], key: string) {
-  let tokenInfo = value => {
-    return GetPriceToken({ tokenSymbol: value.symbol, timestamp: value.date }, key).then(item => {
-      if (item !== null && item !== undefined) {
-        return {
-          ...value,
-          eth: item * value.value,
-          withdraw: item * value.value - value.gasUsed,
-        };
-      }
-    });
+  const tokenInfo = async (value: { symbol: string; date: string | number; value: number; gasUsed: number }) => {
+    const item = await GetPriceToken({ tokenSymbol: value.symbol, timestamp: value.date }, key);
+    if (item !== null && item !== undefined) {
+      return {
+        ...value,
+        eth: item * value.value,
+        withdraw: item * value.value - value.gasUsed,
+      };
+    } else {
+      return {
+        ...value,
+        eth: 0,
+        withdraw: 0,
+      };
+    }
   };
 
   return PromiseQueue(startData, tokenInfo, 500);
@@ -65,8 +70,12 @@ function templatePriceToken(startData: any[], key: string) {
  * @returns {Promise} Promise with object out transactions
  */
 export async function GetOutTransactions(address: EthAddress, key: string): Promise<any> {
-  const res = await GetAllTransactions(address, key);
-  return templatePriceToken(res.Out, key);
+  try {
+    const res = await GetAllTransactions(address, key);
+    return templatePriceToken(res.Out, key);
+  } catch (error) {
+    ThrowError(error);
+  }
 }
 
 /**
@@ -75,8 +84,12 @@ export async function GetOutTransactions(address: EthAddress, key: string): Prom
  * @returns {Promise} Promise with object in transactions
  */
 export async function GetInTransactions(address: EthAddress, key: string): Promise<any> {
-  const res = await GetAllTransactions(address, key);
-  return templatePriceToken(res.In, key);
+  try {
+    const res = await GetAllTransactions(address, key);
+    return templatePriceToken(res.In, key);
+  } catch (error) {
+    ThrowError(error);
+  }
 }
 
 /**
@@ -136,16 +149,14 @@ export async function GetERC20TokenBalanceWithHold(
   return GetResultErc20Transactions(address, etherscanKey).then(response => {
     const responseObj = Object.values(response);
 
-    let tokenCurrent = i => {
-      return GetCurrentERC20TokenBalance(address, i.contractAddress, etherscanKey).then(r => {
-        return GetCurrentPriceToken(i.symbol, 'ETH', cryptocompareKey).then(price => {
-          if (price !== null && price !== undefined) {
-            return {
-              [i.symbol]: i.withdraw + r * price,
-            };
-          }
-        });
-      });
+    const tokenCurrent = async (i: { contractAddress: string; symbol: string; withdraw: number }) => {
+      const r = await GetCurrentERC20TokenBalance(address, i.contractAddress, etherscanKey);
+      const price = await GetCurrentPriceToken(i.symbol, 'ETH', cryptocompareKey);
+      if (price !== null && price !== undefined) {
+        return {
+          [i.symbol]: i.withdraw + r * price,
+        };
+      }
     };
 
     return PromiseQueue(responseObj, tokenCurrent, 500);
