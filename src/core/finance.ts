@@ -1,4 +1,4 @@
-import { IROIValues } from '../interfaces';
+import { IROIValues, EthAddress } from '../interfaces';
 
 /**
  * Return on Investment (ROI)
@@ -6,10 +6,16 @@ import { IROIValues } from '../interfaces';
  * @param {object} data
  * @returns {number}
  */
-export function calculateROI(data: IROIValues): number {
+function calculateROI(data: IROIValues): number {
   /**
    * ROI = (Current value of investment - cost of investments) / cost of investment
    */
+  const result = ((data.cvoi - data.coi) / data.coi) * 100;
+
+  return result;
+}
+
+export function GetROI(data: IROIValues): number {
   const result = ((data.cvoi - data.coi) / data.coi) * 100;
 
   return result;

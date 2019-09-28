@@ -26,7 +26,8 @@ export const WrapperRequest = (url: string) => {
 };
 
 /**
- *
+ * Promise Queue for third party APIs
+ * @returns {Promise}
  */
 export const PromiseQueue = (
   data: any[],

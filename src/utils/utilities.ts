@@ -47,3 +47,11 @@ export const isArray = (value: any): boolean => {
 export const decNum = (numero: number, decimal: number): number => {
   return numero / 10 ** decimal;
 };
+
+/**
+ * Internal helper to parse a string as JSON object
+ * @param value {string} JSON object as string
+ */
+export const parseToJSON = (value: string | undefined): object | undefined => {
+  return isString(value) ? JSON.parse(value) : undefined;
+};

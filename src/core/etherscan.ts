@@ -72,7 +72,7 @@ export function GetCurrentERC20TokenBalance(address: EthAddress, contract: strin
  * @param {string} address
  * @return {object}
  */
-export function GetAllTransactions(address: EthAddress, key: string): any {
+export async function GetAllTransactions(address: EthAddress, key: string): Promise<any> {
   if (CheckAddress(address)) {
     const erc20List = Utils.WrapperRequest(
       `${ETHERSCAN_API}${ETHERSCAN_API_ACCOUNT}${ETHERSCAN_API_TXLIST}${ETHERSCAN_API_ADDRESS}${address}&startblock=0&endblock=99999999&sort=asc&apikey=${key}`,
@@ -103,44 +103,18 @@ export function GetAllTransactions(address: EthAddress, key: string): any {
       };
     };
 
-    return erc20List.then(res => {
-      res.data.result.forEach((element: any) => {
-        if (element.to.toLowerCase() === address.toLowerCase()) {
-          allTransactions.In = [...allTransactions.In, formationTransactionObj(element)];
+    const res = await erc20List;
+
+    if (res.status === 200) {
+      res.data.result.forEach((item: any) => {
+        if (item.to.toLowerCase() === address.toLowerCase()) {
+          allTransactions.In = [...allTransactions.In, formationTransactionObj(item)];
         } else {
-          allTransactions.Out = [...allTransactions.Out, formationTransactionObj(element)];
+          allTransactions.Out = [...allTransactions.Out, formationTransactionObj(item)];
         }
       });
 
       return allTransactions;
-    });
+    }
   }
-}
-
-/**
- * Function to get current balance of ETH by address
- * @param address
- */
-export function GetCurrentEthBalance(address: EthAddress, key: string): any {
-  if (CheckAddress(address)) {
-    const res = Utils.Request(
-      `${ETHERSCAN_API}${ETHERSCAN_API_ACCOUNT}${ETHERSCAN_API_BALANCE}${ETHERSCAN_API_ADDRESS}${address}&tag=latest&apikey=${key}`,
-    );
-
-    const responseData = async () => {
-      const dataInfo = await res;
-
-      return dataInfo;
-    };
-
-    return responseData().then(response => {
-      if (response.data.status === '1' && response.data.message === 'OK') {
-        return Utils.Checkers.decNum(response.data.result, 18);
-      } else {
-        Utils.ThrowError(response.data.message);
-      }
-    });
-  }
-
-  Utils.ThrowError('Not connect with etherscan.io');
 }
