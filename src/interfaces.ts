@@ -18,11 +18,3 @@ export interface IPriceToken {
   /** Convert to currency */
   toConvert?: string;
 }
-
-export interface IROIValues {
-  /** Current value of investment */
-  cvoi: number;
-
-  /** Cost of investment */
-  coi: number;
-}
