@@ -1,1 +1,0 @@
-import { GetCurrentEthBalance } from '../etherscan';
