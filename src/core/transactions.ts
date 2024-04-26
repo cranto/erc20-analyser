@@ -84,13 +84,13 @@ export function GetInTransactions(address: EthAddress, key: string): Promise<any
  * @returns {Promise}
  */
 export async function GetResultErc20Transactions(address: EthAddress, etherscanKey: string): Promise<object> {
-  const outSum = GetOutTransactions(address, etherscanKey);
-  const inSum = GetInTransactions(address, etherscanKey);
+  const [outSum, inSum] = await Promise.all([
+    GetOutTransactions(address, etherscanKey),
+    GetInTransactions(address, etherscanKey)
+  ]);
 
-  const result = await Promise.all([outSum, inSum]);
-
-  const outTransactions = GetAmount(result[0]);
-  const inTransactions = GetAmount(result[1]);
+  const outTransactions = GetAmount(outSum);
+  const inTransactions = GetAmount(inSum);
 
   const obj = {};
 
@@ -112,9 +112,6 @@ export async function GetResultErc20Transactions(address: EthAddress, etherscanK
 
 /**
  * Function to get current balance with hold
- * @param address
- * @param key
- * @returns {Promise}
  */
 export async function GetERC20TokenBalanceWithHold(
   address: EthAddress,
