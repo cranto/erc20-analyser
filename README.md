@@ -1,12 +1,14 @@
-# Module to analyse ERC20-Token balance of address
+# ERC-20 Analyser
+
+> Module to analyse ERC20-Token balance of address
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/shevchenkonik/erc20-analyser/blob/master/LICENSE) ![GitHub issues](https://img.shields.io/github/issues-raw/shevchenkonik/erc20-analyser.svg) ![npm](https://img.shields.io/npm/dy/erc20-analyser.svg) ![GitHub pull requests](https://img.shields.io/github/issues-pr/shevchenkonik/erc20-analyser.svg)
 
 # What is ERC20-Analyser?
 
-This is a library for calculating the profit or loss of ETH-address.
+This is a library for calculating the profit or loss of ETH-addresses.
 
-This is a non-profit & opensource project for developers. If you want to use this project for commercial goals, you need to buy commercial API (for third party services).
+> This is a non-profit & opensource project for developers. If you want to use this project for commercial goals, you need to buy commercial API (for third party services).
 
 ## Getting started
 
